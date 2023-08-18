@@ -49,7 +49,7 @@ data "template_cloudinit_config" "config" {
               sources : {
                 infrahouse : {
                   source : "deb [signed-by=$KEY_FILE] https://release-${var.ubuntu_codename}.infrahouse.com/ $RELEASE main"
-                  key : "${path.module}/files/DEB-GPG-KEY-infrahouse-${var.ubuntu_codename}"
+                  key : file("${path.module}/files/DEB-GPG-KEY-infrahouse-${var.ubuntu_codename}")
                 }
               }
             }
