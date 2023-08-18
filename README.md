@@ -32,9 +32,8 @@ The module prepares userdata:
 ```hcl
 module "jumphost_userdata" {
   source  = "infrahouse/cloud-init/aws"
-  version = "~> 1.0"
+  version = "~> 1.1"
   environment    = var.environment
-  gpg_public_key = file("./files/DEB-GPG-KEY-infrahouse-jammy")
   role           = "jumphost"
 }
 ```
@@ -82,7 +81,6 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name. Passed on as a puppet fact | `string` | n/a | yes |
-| <a name="input_gpg_public_key"></a> [gpg\_public\_key](#input\_gpg\_public\_key) | Public GPG key used to verify signature of the InfraHouse releases repo. | `string` | n/a | yes |
 | <a name="input_role"></a> [role](#input\_role) | Puppet role. Passed on as a puppet fact | `string` | n/a | yes |
 | <a name="input_ubuntu_codename"></a> [ubuntu\_codename](#input\_ubuntu\_codename) | Ubuntu version to use for the jumphost | `string` | `"jammy"` | no |
 
