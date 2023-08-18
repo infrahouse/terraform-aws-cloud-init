@@ -3,11 +3,6 @@ variable "environment" {
   type        = string
 }
 
-variable "gpg_public_key" {
-  description = "Public GPG key used to verify signature of the InfraHouse releases repo."
-  type        = string
-}
-
 variable "role" {
   description = "Puppet role. Passed on as a puppet fact"
   type        = string
