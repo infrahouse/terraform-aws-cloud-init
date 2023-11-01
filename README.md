@@ -32,7 +32,7 @@ The module prepares userdata:
 ```hcl
 module "jumphost_userdata" {
   source  = "infrahouse/cloud-init/aws"
-  version = "~> 1.1"
+  version = "~> 1.2"
   environment    = var.environment
   role           = "jumphost"
 }
@@ -50,20 +50,19 @@ resource "aws_launch_template" "jumphost" {
   user_data = module.jumphost_userdata.userdata
 }
 ```
-
 ## Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.11 |
-| <a name="requirement_template"></a> [template](#requirement\_template) | ~> 2.2 |
+| <a name="requirement_cloudinit"></a> [cloudinit](#requirement\_cloudinit) | ~> 2.3 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.11 |
-| <a name="provider_template"></a> [template](#provider\_template) | ~> 2.2 |
+| <a name="provider_cloudinit"></a> [cloudinit](#provider\_cloudinit) | ~> 2.3 |
 
 ## Modules
 
@@ -74,7 +73,7 @@ No modules.
 | Name | Type |
 |------|------|
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
-| [template_cloudinit_config.config](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/cloudinit_config) | data source |
+| [cloudinit_config.config](https://registry.terraform.io/providers/hashicorp/cloudinit/latest/docs/data-sources/config) | data source |
 
 ## Inputs
 
