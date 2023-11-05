@@ -42,7 +42,27 @@ data "cloudinit_config" "config" {
                   ]
                 ),
                 permissions : "0644"
+              },
+              {
+                content : jsonencode(
+                  {
+                    ih-puppet : {
+                      "debug" : var.puppet_debug_logging
+                      "root-directory" : var.puppet_root_directory
+                      "hiera-config" : var.puppet_hiera_config_path
+                      "module-path" : var.puppet_module_path
+                    }
+                  }
+                ),
+                path : join(
+                  "/", [
+                    local.external_facts_dir,
+                    "ih-puppet.json"
+                  ]
+                ),
+                permissions : "0644"
               }
+
             ]
             "package_update" : true,
             apt : {
