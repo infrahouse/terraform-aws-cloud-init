@@ -1,6 +1,6 @@
 
 module "test" {
-  source                = "../../"
-  environment           = "dev"
-  role                  = "foo"
+  source      = "../../"
+  environment = "dev"
+  role        = "foo"
 }
