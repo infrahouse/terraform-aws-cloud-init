@@ -22,9 +22,12 @@ Tools as well as the puppet code will be installed from the infrahouse APT repos
 
   * `puppet-code` - the puppet manifests and other code.
   * `infrahouse-toolkit` - The InfraHouse toolkit. Specifically, we need a puppet wrapper `ih-ppuppet`.
+  * packages from the `var.packages` list.
 
 Finally, [Cloud-init](https://cloudinit.readthedocs.io/en/latest/index.html) runs a puppet wrapper (`ih-puppet`) to apply
 manifests from the `puppet-code`.
+
+The module accepts `var.puppet_hiera_config_path` variable, should you want to use alternative hiera data. 
 
 ## Usage
 
@@ -32,7 +35,7 @@ The module prepares userdata:
 ```hcl
 module "jumphost_userdata" {
   source  = "infrahouse/cloud-init/aws"
-  version = "~> 1.2"
+  version = "~> 1.3"
   environment    = var.environment
   role           = "jumphost"
 }
@@ -54,6 +57,7 @@ resource "aws_launch_template" "jumphost" {
 
 | Name | Version |
 |------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.5 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.11 |
 | <a name="requirement_cloudinit"></a> [cloudinit](#requirement\_cloudinit) | ~> 2.3 |
 
@@ -79,9 +83,14 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_environment"></a> [environment](#input\_environment) | Environment name. Passed on as a puppet fact | `string` | n/a | yes |
-| <a name="input_role"></a> [role](#input\_role) | Puppet role. Passed on as a puppet fact | `string` | n/a | yes |
-| <a name="input_ubuntu_codename"></a> [ubuntu\_codename](#input\_ubuntu\_codename) | Ubuntu version to use for the jumphost | `string` | `"jammy"` | no |
+| <a name="input_environment"></a> [environment](#input\_environment) | Environment name. Passed on as a puppet fact. | `string` | n/a | yes |
+| <a name="input_packages"></a> [packages](#input\_packages) | List of packages to install when the instances bootstraps. | `list(string)` | `[]` | no |
+| <a name="input_puppet_debug_logging"></a> [puppet\_debug\_logging](#input\_puppet\_debug\_logging) | Enable debug logging if true. | `bool` | `false` | no |
+| <a name="input_puppet_hiera_config_path"></a> [puppet\_hiera\_config\_path](#input\_puppet\_hiera\_config\_path) | Path to hiera configuration file. | `string` | `"{root_directory}/environments/{environment}/hiera.yaml"` | no |
+| <a name="input_puppet_module_path"></a> [puppet\_module\_path](#input\_puppet\_module\_path) | Path to common puppet modules. | `string` | `"{root_directory}/modules"` | no |
+| <a name="input_puppet_root_directory"></a> [puppet\_root\_directory](#input\_puppet\_root\_directory) | Path where the puppet code is hosted. | `string` | `"/opt/puppet-code"` | no |
+| <a name="input_role"></a> [role](#input\_role) | Puppet role. Passed on as a puppet fact. | `string` | n/a | yes |
+| <a name="input_ubuntu_codename"></a> [ubuntu\_codename](#input\_ubuntu\_codename) | Ubuntu version to use for the jumphost. | `string` | `"jammy"` | no |
 
 ## Outputs
 

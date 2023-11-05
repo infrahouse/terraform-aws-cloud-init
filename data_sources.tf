@@ -53,10 +53,13 @@ data "cloudinit_config" "config" {
                 }
               }
             }
-            packages : [
-              "puppet-code",
-              "infrahouse-toolkit"
-            ],
+            packages : concat(
+              [
+                "puppet-code",
+                "infrahouse-toolkit"
+              ],
+              var.packages
+            ),
             puppet : {
               install : true,
               install_type : "aio",
@@ -65,9 +68,19 @@ data "cloudinit_config" "config" {
               start_service : false,
             }
             runcmd : [
-              [
-                "ih-puppet", "--debug", "apply"
-              ]
+              concat(
+                [
+                  "ih-puppet",
+                ],
+                var.puppet_debug_logging ? ["--debug"] : [],
+                [
+                  "--environment", var.environment,
+                  "--root-directory", var.puppet_root_directory,
+                  "--hiera-config", var.puppet_hiera_config_path,
+                  "--module-path", var.puppet_module_path,
+                  "apply"
+                ]
+              )
             ]
           }
         )
