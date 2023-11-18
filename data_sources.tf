@@ -51,6 +51,7 @@ data "cloudinit_config" "config" {
                         "debug" : var.puppet_debug_logging
                         "root-directory" : var.puppet_root_directory
                         "hiera-config" : var.puppet_hiera_config_path
+                        "environmentpath": var.puppet_environmentpath
                         "module-path" : var.puppet_module_path
                       }
                     }
