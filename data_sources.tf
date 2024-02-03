@@ -19,6 +19,11 @@ data "cloudinit_config" "config" {
             write_files : concat(
               [
                 {
+                  content : "export AWS_DEFAULT_REGION=${data.aws_region.current.name}",
+                  path : "/etc/profile.d/aws.sh",
+                  permissions : "0644"
+                },
+                {
                   content : join(
                     "\n",
                     [
