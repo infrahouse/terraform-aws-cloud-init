@@ -1,3 +1,8 @@
+variable "custom_facts" {
+  description = "A map of custom puppet facts"
+  default     = {}
+}
+
 variable "environment" {
   description = "Environment name. Passed on as a puppet fact."
   type        = string

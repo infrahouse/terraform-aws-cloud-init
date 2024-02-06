@@ -16,4 +16,10 @@ module "test" {
       permissions : "0600"
     }
   ]
+  custom_facts = {
+    "foo" : "bar"
+    "foo_map" : {
+      "foo" : "bar"
+    }
+  }
 }
