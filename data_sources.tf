@@ -56,7 +56,7 @@ data "cloudinit_config" "config" {
                         "debug" : var.puppet_debug_logging
                         "root-directory" : var.puppet_root_directory
                         "hiera-config" : var.puppet_hiera_config_path
-                        "environmentpath": var.puppet_environmentpath
+                        "environmentpath" : var.puppet_environmentpath
                         "module-path" : var.puppet_module_path
                       }
                     }
@@ -65,6 +65,16 @@ data "cloudinit_config" "config" {
                     "/", [
                       local.external_facts_dir,
                       "ih-puppet.json"
+                    ]
+                  ),
+                  permissions : "0644"
+                },
+                {
+                  content : jsonencode(var.custom_facts),
+                  path : join(
+                    "/", [
+                      local.external_facts_dir,
+                      "custom.json"
                     ]
                   ),
                   permissions : "0644"
