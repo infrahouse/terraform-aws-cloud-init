@@ -11,8 +11,6 @@ from tests.conftest import (
 )
 
 
-@pytest.mark.flaky(reruns=0, reruns_delay=30)
-@pytest.mark.timeout(1800)
 def test_module():
     terraform_dir = "test_data/test_module"
 

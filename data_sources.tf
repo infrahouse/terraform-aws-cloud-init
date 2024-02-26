@@ -16,6 +16,7 @@ data "cloudinit_config" "config" {
         "#cloud-config",
         yamlencode(
           {
+            mounts : var.mounts,
             write_files : concat(
               [
                 {
