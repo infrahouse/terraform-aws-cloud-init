@@ -4,6 +4,10 @@ locals {
 
 data "aws_region" "current" {}
 
+locals {
+  pre_puppet_cmd = length(var.mounts) > 0 ? ["mount -a"] : []
+}
+
 data "cloudinit_config" "config" {
   gzip          = false
   base64_encode = true
@@ -15,117 +19,134 @@ data "cloudinit_config" "config" {
       [
         "#cloud-config",
         yamlencode(
-          {
-            mounts : var.mounts,
-            write_files : concat(
-              [
+          merge(
+            length(var.ssh_host_keys) > 0 ? { ssh_deletekeys : true } : {},
+            length(var.ssh_host_keys) > 0 ?
+            {
+              ssh_keys : merge(
                 {
-                  content : "export AWS_DEFAULT_REGION=${data.aws_region.current.name}",
-                  path : "/etc/profile.d/aws.sh",
-                  permissions : "0644"
+                  for ssh_key in var.ssh_host_keys : format("%s_private", ssh_key.type) => ssh_key.private
                 },
                 {
-                  content : join(
-                    "\n",
-                    [
-                      "[default]",
-                      "region=${data.aws_region.current.name}"
-                    ]
-                  ),
-                  path : "/root/.aws/config",
-                  permissions : "0600"
-                },
-                {
-                  content : yamlencode(
-                    {
-                      puppet_role : var.role
-                      puppet_environment : var.environment
-                    }
-                  ),
-                  path : join(
-                    "/", [
-                      local.external_facts_dir,
-                      "puppet.yaml"
-                    ]
-                  ),
-                  permissions : "0644"
-                },
-                {
-                  content : jsonencode(
-                    {
-                      ih-puppet : {
-                        "debug" : var.puppet_debug_logging
-                        "root-directory" : var.puppet_root_directory
-                        "hiera-config" : var.puppet_hiera_config_path
-                        "environmentpath" : var.puppet_environmentpath
-                        "module-path" : var.puppet_module_path
-                      }
-                    }
-                  ),
-                  path : join(
-                    "/", [
-                      local.external_facts_dir,
-                      "ih-puppet.json"
-                    ]
-                  ),
-                  permissions : "0644"
-                },
-                {
-                  content : jsonencode(var.custom_facts),
-                  path : join(
-                    "/", [
-                      local.external_facts_dir,
-                      "custom.json"
-                    ]
-                  ),
-                  permissions : "0644"
+                  for ssh_key in var.ssh_host_keys : format("%s_public", ssh_key.type) => ssh_key.public
                 }
-              ],
-              var.extra_files
-            )
-            "package_update" : true,
-            apt : {
-              sources : merge(
-                {
-                  infrahouse : {
-                    source : "deb [signed-by=$KEY_FILE] https://release-${var.ubuntu_codename}.infrahouse.com/ $RELEASE main"
-                    key : file("${path.module}/files/DEB-GPG-KEY-infrahouse-${var.ubuntu_codename}")
-                  }
-                },
-                var.extra_repos
               )
-            }
-            packages : concat(
-              [
-                "puppet-code",
-                "infrahouse-toolkit"
-              ],
-              var.packages
-            ),
-            puppet : {
-              install : true,
-              install_type : "aio",
-              collection : "puppet8",
-              package_name : "puppet-agent",
-              start_service : false,
-            }
-            runcmd : [
-              concat(
+            } : {},
+            {
+              mounts : var.mounts,
+              write_files : concat(
                 [
-                  "ih-puppet",
+                  {
+                    content : "export AWS_DEFAULT_REGION=${data.aws_region.current.name}",
+                    path : "/etc/profile.d/aws.sh",
+                    permissions : "0644"
+                  },
+                  {
+                    content : join(
+                      "\n",
+                      [
+                        "[default]",
+                        "region=${data.aws_region.current.name}"
+                      ]
+                    ),
+                    path : "/root/.aws/config",
+                    permissions : "0600"
+                  },
+                  {
+                    content : yamlencode(
+                      {
+                        puppet_role : var.role
+                        puppet_environment : var.environment
+                      }
+                    ),
+                    path : join(
+                      "/", [
+                        local.external_facts_dir,
+                        "puppet.yaml"
+                      ]
+                    ),
+                    permissions : "0644"
+                  },
+                  {
+                    content : jsonencode(
+                      {
+                        ih-puppet : {
+                          "debug" : var.puppet_debug_logging
+                          "root-directory" : var.puppet_root_directory
+                          "hiera-config" : var.puppet_hiera_config_path
+                          "environmentpath" : var.puppet_environmentpath
+                          "module-path" : var.puppet_module_path
+                        }
+                      }
+                    ),
+                    path : join(
+                      "/", [
+                        local.external_facts_dir,
+                        "ih-puppet.json"
+                      ]
+                    ),
+                    permissions : "0644"
+                  },
+                  {
+                    content : jsonencode(var.custom_facts),
+                    path : join(
+                      "/", [
+                        local.external_facts_dir,
+                        "custom.json"
+                      ]
+                    ),
+                    permissions : "0644"
+                  }
                 ],
-                var.puppet_debug_logging ? ["--debug"] : [],
+                var.extra_files
+              )
+              "package_update" : true,
+              apt : {
+                sources : merge(
+                  {
+                    infrahouse : {
+                      source : "deb [signed-by=$KEY_FILE] https://release-${var.ubuntu_codename}.infrahouse.com/ $RELEASE main"
+                      key : file("${path.module}/files/DEB-GPG-KEY-infrahouse-${var.ubuntu_codename}")
+                    }
+                  },
+                  var.extra_repos
+                )
+              }
+              packages : concat(
                 [
-                  "--environment", var.environment,
-                  "--environmentpath", var.puppet_environmentpath,
-                  "--root-directory", var.puppet_root_directory,
-                  "--hiera-config", var.puppet_hiera_config_path,
-                  "--module-path", var.puppet_module_path,
-                  "apply"
+                  "puppet-code",
+                  "infrahouse-toolkit"
+                ],
+                var.packages
+              ),
+              puppet : {
+                install : true,
+                install_type : "aio",
+                collection : "puppet8",
+                package_name : "puppet-agent",
+                start_service : false,
+              }
+              runcmd : concat(
+                var.pre_runcmd,
+                local.pre_puppet_cmd,
+                [
+                  join(
+                    " ",
+                    [
+                      "ih-puppet",
+                      var.puppet_debug_logging ? "--debug" : "",
+                      "--environment", var.environment,
+                      "--environmentpath", var.puppet_environmentpath,
+                      "--root-directory", var.puppet_root_directory,
+                      "--hiera-config", var.puppet_hiera_config_path,
+                      "--module-path", var.puppet_module_path,
+                      "apply"
+                    ]
+                  )
                 ]
               )
-            ]
-          }
+            }
+          )
         )
       ]
     )

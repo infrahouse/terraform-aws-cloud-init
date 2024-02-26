@@ -37,6 +37,11 @@ variable "packages" {
   default     = []
 }
 
+variable "pre_runcmd" {
+  description = "Commands to run before runcmd"
+  type        = list(string)
+  default     = []
+}
 variable "puppet_debug_logging" {
   description = "Enable debug logging if true."
   type        = bool
@@ -66,6 +71,20 @@ variable "puppet_root_directory" {
 variable "role" {
   description = "Puppet role. Passed on as a puppet fact."
   type        = string
+}
+
+variable "ssh_host_keys" {
+  description = "List of instance's SSH host keys.  Can be rsa, ecdsa, ed25519, etc. See https://cloudinit.readthedocs.io/en/latest/reference/examples.html#configure-instance-s-ssh-keys"
+  type = list(
+    object(
+      {
+        type : string
+        private : string
+        public : string
+      }
+    )
+  )
+  default = []
 }
 
 variable "ubuntu_codename" {
