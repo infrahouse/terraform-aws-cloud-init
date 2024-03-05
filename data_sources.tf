@@ -132,16 +132,19 @@ data "cloudinit_config" "config" {
                 [
                   join(
                     " ",
-                    [
-                      "ih-puppet",
-                      var.puppet_debug_logging ? "--debug" : "",
-                      "--environment", var.environment,
-                      "--environmentpath", var.puppet_environmentpath,
-                      "--root-directory", var.puppet_root_directory,
-                      "--hiera-config", var.puppet_hiera_config_path,
-                      "--module-path", var.puppet_module_path,
-                      "apply"
-                    ]
+                    concat(
+                      [
+                        "ih-puppet",
+                        var.puppet_debug_logging ? "--debug" : "",
+                        "--environment", var.environment,
+                        "--environmentpath", var.puppet_environmentpath,
+                        "--root-directory", var.puppet_root_directory,
+                        "--hiera-config", var.puppet_hiera_config_path,
+                        "--module-path", var.puppet_module_path,
+                        "apply"
+                      ],
+                      var.puppet_manifest == null ? [] : [var.puppet_manifest]
+                    )
                   )
                 ]
               )

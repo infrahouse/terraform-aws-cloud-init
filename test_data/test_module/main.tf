@@ -36,8 +36,9 @@ module "test" {
   ssh_host_keys = [
     {
       type : "rsa"
-      private : file("${path.module}/ssh_host_rsa_key")
-      public : file("${path.module}/ssh_host_rsa_key.pub")
+      private : file("${path.module}/ssh_keys/ssh_host_rsa_key")
+      public : file("${path.module}/ssh_keys/ssh_host_rsa_key.pub")
     }
   ]
+  puppet_manifest = "/var/log/foo"
 }
