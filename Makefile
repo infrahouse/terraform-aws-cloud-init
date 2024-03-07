@@ -47,6 +47,13 @@ format:  ## Use terraform fmt to format all files in the repo
 	terraform fmt -recursive
 	black tests
 
+.PHONY: lint
+lint:  ## Lint the module
+	@echo "Check code style"
+	black --check tests
+	terraform fmt -check
+	tflint
+
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
 

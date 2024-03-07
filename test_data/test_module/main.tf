@@ -22,17 +22,7 @@ module "test" {
       "foo" : "bar"
     }
   }
-  mounts = [
-    [
-      "file_system_id.efs.aws-region.amazonaws.com:/",
-      "mount_point",
-      "nfs4",
-      "nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport,_netdev",
-      "0",
-      "0"
-    ],
-    ["xvdh", "/opt/data", "auto", "defaults,nofail", "0", "0"]
-  ]
+  mounts = var.mounts
   ssh_host_keys = [
     {
       type : "rsa"

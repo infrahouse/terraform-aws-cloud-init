@@ -32,8 +32,8 @@ data "cloudinit_config" "config" {
                 }
               )
             } : {},
+            length(var.mounts) > 0 ? { mounts : var.mounts } : {},
             {
-              mounts : var.mounts,
               write_files : concat(
                 [
                   {
@@ -100,7 +100,7 @@ data "cloudinit_config" "config" {
                 ],
                 var.extra_files
               )
-              "package_update" : true,
+              package_update : true,
               apt : {
                 sources : merge(
                   {
