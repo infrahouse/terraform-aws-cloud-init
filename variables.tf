@@ -1,5 +1,6 @@
 variable "custom_facts" {
   description = "A map of custom puppet facts"
+  type        = any
   default     = {}
 }
 
@@ -26,11 +27,14 @@ variable "extra_repos" {
   }))
   default = {}
 }
+
 variable "mounts" {
   description = "List of volumes to be mounted in the instance. One list item is a list itself with values [ fs_spec, fs_file, fs_vfstype, fs_mntops, fs-freq, fs_passno ]"
   default     = []
   type        = list(list(string))
+  nullable    = false
 }
+
 variable "packages" {
   description = "List of packages to install when the instances bootstraps."
   type        = list(string)
@@ -50,11 +54,13 @@ variable "puppet_debug_logging" {
 
 variable "puppet_environmentpath" {
   description = "A path for directory environments."
+  type        = string
   default     = "{root_directory}/environments"
 }
 
 variable "puppet_hiera_config_path" {
   description = "Path to hiera configuration file."
+  type        = string
   default     = "{root_directory}/environments/{environment}/hiera.yaml"
 }
 
@@ -66,11 +72,13 @@ variable "puppet_manifest" {
 
 variable "puppet_module_path" {
   description = "Path to common puppet modules."
+  type        = string
   default     = "{root_directory}/modules"
 }
 
 variable "puppet_root_directory" {
   description = "Path where the puppet code is hosted."
+  type        = string
   default     = "/opt/puppet-code"
 }
 
