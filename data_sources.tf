@@ -5,7 +5,8 @@ locals {
 data "aws_region" "current" {}
 
 locals {
-  pre_puppet_cmd = length(var.mounts) > 0 ? ["mount -a"] : []
+  pre_puppet_cmd  = length(var.mounts) > 0 ? ["mount -a"] : []
+  puppet_manifest = var.puppet_manifest == null ? "${var.puppet_root_directory}/environments/${var.environment}/manifests/site.pp" : var.puppet_manifest
 }
 
 data "cloudinit_config" "config" {
@@ -76,6 +77,7 @@ data "cloudinit_config" "config" {
                           "hiera-config" : var.puppet_hiera_config_path
                           "environmentpath" : var.puppet_environmentpath
                           "module-path" : var.puppet_module_path
+                          "manifest" : local.puppet_manifest
                         }
                       }
                     ),
@@ -141,9 +143,9 @@ data "cloudinit_config" "config" {
                         "--root-directory", var.puppet_root_directory,
                         "--hiera-config", var.puppet_hiera_config_path,
                         "--module-path", var.puppet_module_path,
-                        "apply"
-                      ],
-                      var.puppet_manifest == null ? [] : [var.puppet_manifest]
+                        "apply",
+                        local.puppet_manifest
+                      ]
                     )
                   )
                 ]
