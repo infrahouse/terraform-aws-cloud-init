@@ -3,3 +3,7 @@ variable "mounts" {
   default     = []
   type        = list(list(string))
 }
+
+variable "puppet_manifest" {
+  default = null
+}
