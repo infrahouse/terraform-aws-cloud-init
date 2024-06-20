@@ -1,6 +1,0 @@
-[
-  "tests/test_manifest.py::test_module[None-/opt/puppet-code/environments/dev/manifests/site.pp-expected_runcmd0]",
-  "tests/test_manifest.py::test_module[boo-boo-expected_runcmd1]",
-  "tests/test_module.py::test_module[None-None]",
-  "tests/test_module.py::test_module[[\\n    [\\n        \"file_system_id.efs.aws-region.amazonaws.com:/\",\\n        \"mount_point\",\\n        \"nfs4\",\\n        \"nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport,_netdev\",\\n        \"0\",\\n        \"0\"\\n    ],\\n    [\\n        \"xvdh\",\\n        \"/opt/data\",\\n        \"auto\",\\n        \"defaults,nofail\",\\n        \"0\",\\n        \"0\"\\n    ]\\n]-expected_mounts0]"
-]
