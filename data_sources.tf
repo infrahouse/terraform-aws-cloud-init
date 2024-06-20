@@ -129,8 +129,13 @@ data "cloudinit_config" "config" {
                 start_service : false,
               }
               runcmd : concat(
-                var.pre_runcmd,
                 local.pre_puppet_cmd,
+                [
+                  "/opt/puppetlabs/puppet/bin/gem install json",
+                  "/opt/puppetlabs/puppet/bin/gem install aws-sdk-core",
+                  "/opt/puppetlabs/puppet/bin/gem install aws-sdk-secretsmanager",
+                ]
+                var.pre_runcmd,
                 [
                   join(
                     " ",
