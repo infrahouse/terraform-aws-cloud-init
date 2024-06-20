@@ -116,6 +116,7 @@ data "cloudinit_config" "config" {
               }
               packages : concat(
                 [
+                  "make",
                   "puppet-code",
                   "infrahouse-toolkit"
                 ],
