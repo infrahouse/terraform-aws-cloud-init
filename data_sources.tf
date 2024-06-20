@@ -116,7 +116,10 @@ data "cloudinit_config" "config" {
               }
               packages : concat(
                 [
+                  # json gem dependencies
                   "make",
+                  "gcc",
+                  # puppet
                   "puppet-code",
                   "infrahouse-toolkit"
                 ],
