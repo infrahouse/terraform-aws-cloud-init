@@ -97,4 +97,4 @@ def test_module(puppet_manifest, expected_fact, expected_runcmd):
                 pprint(facts)
                 assert facts["ih-puppet"]["manifest"] == expected_fact
         assert found_ih_puppet_json
-        assert ud_obj["runcmd"][0].split(" ") == expected_runcmd
+        assert ud_obj["runcmd"][-1].split(" ") == expected_runcmd
