@@ -153,7 +153,7 @@ data "cloudinit_config" "config" {
                         "--hiera-config", var.puppet_hiera_config_path,
                         "--module-path", var.puppet_module_path,
                       ],
-                        var.cancel_instance_refresh_on_error ? ["--cancel-instance-refresh-on-error"] : [],
+                      var.cancel_instance_refresh_on_error ? ["--cancel-instance-refresh-on-error"] : [],
                       [
                         "apply",
                         local.puppet_manifest
