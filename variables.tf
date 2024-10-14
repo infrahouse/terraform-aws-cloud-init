@@ -1,7 +1,7 @@
 variable "cancel_instance_refresh_on_error" {
   description = "If True, ih-puppet will attempt to cancel instance refreshes on an autoscaling group, this instance is a part of."
-  type = bool
-  default = false
+  type        = bool
+  default     = false
 }
 
 variable "custom_facts" {
