@@ -1,5 +1,10 @@
 locals {
   external_facts_dir = "/etc/puppetlabs/facter/facts.d"
+  puppet_version_map = {
+    "focal" : "8.1.0"
+    "jammy" : "8.1.0"
+    "noble" : "8.10.0"
+  }
 }
 
 data "aws_region" "current" {}
@@ -124,21 +129,23 @@ data "cloudinit_config" "config" {
                   "puppet-code",
                   "infrahouse-toolkit"
                 ],
+                contains(["noble"], var.ubuntu_codename) ? ["ruby-rubygems", "ruby-dev"] : [],
                 var.packages
               ),
               puppet : {
                 install : true,
                 install_type : "aio",
                 collection : "puppet8",
+                version : local.puppet_version_map[var.ubuntu_codename],
                 package_name : "puppet-agent",
                 start_service : false,
               }
               runcmd : concat(
                 local.pre_puppet_cmd,
                 [
-                  "/opt/puppetlabs/puppet/bin/gem install json",
-                  "/opt/puppetlabs/puppet/bin/gem install aws-sdk-core",
-                  "/opt/puppetlabs/puppet/bin/gem install aws-sdk-secretsmanager",
+                  "PATH=/opt/puppetlabs/puppet/bin:$PATH gem install json",
+                  "PATH=/opt/puppetlabs/puppet/bin:$PATH gem install aws-sdk-core",
+                  "PATH=/opt/puppetlabs/puppet/bin:$PATH gem install aws-sdk-secretsmanager",
                 ],
                 var.pre_runcmd,
                 [
