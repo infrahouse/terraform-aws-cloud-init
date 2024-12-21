@@ -4,6 +4,7 @@ locals {
     "focal" : "8.1.0"
     "jammy" : "8.1.0"
     "noble" : "8.10.0"
+    "oracular" : "8.10.0"
   }
 }
 
@@ -39,6 +40,16 @@ data "cloudinit_config" "config" {
               )
             } : {},
             length(var.mounts) > 0 ? { mounts : var.mounts } : {},
+            contains(["focal", "jammy", "noble"], var.ubuntu_codename) ? {
+              puppet : {
+                install : true,
+                install_type : "aio",
+                collection : "puppet8",
+                version : local.puppet_version_map[var.ubuntu_codename],
+                package_name : "puppet-agent",
+                start_service : false,
+              }
+            } : {},
             {
               write_files : concat(
                 [
@@ -106,6 +117,14 @@ data "cloudinit_config" "config" {
                     permissions : "0644"
                   }
                 ],
+                # oracular needs facter config to lookup puppet_role
+                contains(["oracular"], var.ubuntu_codename) ? [
+                  {
+                    content : file("${path.module}/files/facter.conf"),
+                    path : "/etc/facter/facter.conf",
+                    permissions : "0644"
+                  }
+                ] : [],
                 var.extra_files
               )
               package_update : true,
@@ -129,17 +148,9 @@ data "cloudinit_config" "config" {
                   "puppet-code",
                   "infrahouse-toolkit"
                 ],
-                contains(["noble"], var.ubuntu_codename) ? ["ruby-rubygems", "ruby-dev"] : [],
+                contains(["noble", "oracular"], var.ubuntu_codename) ? ["ruby-rubygems", "ruby-dev"] : [],
                 var.packages
               ),
-              puppet : {
-                install : true,
-                install_type : "aio",
-                collection : "puppet8",
-                version : local.puppet_version_map[var.ubuntu_codename],
-                package_name : "puppet-agent",
-                start_service : false,
-              }
               runcmd : concat(
                 local.pre_puppet_cmd,
                 [
