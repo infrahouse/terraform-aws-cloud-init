@@ -16,7 +16,7 @@ locals {
 }
 
 data "cloudinit_config" "config" {
-  gzip          = false
+  gzip          = var.gzip_userdata
   base64_encode = true
 
   part {
