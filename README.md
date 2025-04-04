@@ -91,6 +91,7 @@ No modules.
 | <a name="input_gzip_userdata"></a> [gzip\_userdata](#input\_gzip\_userdata) | Whether compress user data or not. | `bool` | `false` | no |
 | <a name="input_mounts"></a> [mounts](#input\_mounts) | List of volumes to be mounted in the instance. One list item is a list itself with values [ fs\_spec, fs\_file, fs\_vfstype, fs\_mntops, fs-freq, fs\_passno ] | `list(list(string))` | `[]` | no |
 | <a name="input_packages"></a> [packages](#input\_packages) | List of packages to install when the instances bootstraps. | `list(string)` | `[]` | no |
+| <a name="input_post_runcmd"></a> [post\_runcmd](#input\_post\_runcmd) | Commands to run after runcmd | `list(string)` | `[]` | no |
 | <a name="input_pre_runcmd"></a> [pre\_runcmd](#input\_pre\_runcmd) | Commands to run before runcmd | `list(string)` | `[]` | no |
 | <a name="input_puppet_debug_logging"></a> [puppet\_debug\_logging](#input\_puppet\_debug\_logging) | Enable debug logging if true. | `bool` | `false` | no |
 | <a name="input_puppet_environmentpath"></a> [puppet\_environmentpath](#input\_puppet\_environmentpath) | A path for directory environments. | `string` | `"{root_directory}/environments"` | no |

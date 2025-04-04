@@ -179,7 +179,8 @@ data "cloudinit_config" "config" {
                       ]
                     )
                   )
-                ]
+                ],
+                var.post_runcmd,
               )
             }
           )
