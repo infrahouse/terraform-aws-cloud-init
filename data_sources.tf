@@ -1,11 +1,5 @@
 locals {
   external_facts_dir = "/etc/puppetlabs/facter/facts.d"
-  puppet_version_map = {
-    "focal" : "8.1.0"
-    "jammy" : "8.1.0"
-    "noble" : "8.10.0"
-    "oracular" : "8.10.0"
-  }
 }
 
 data "aws_region" "current" {}
@@ -40,17 +34,11 @@ data "cloudinit_config" "config" {
               )
             } : {},
             length(var.mounts) > 0 ? { mounts : var.mounts } : {},
-            contains(["focal", "jammy", "noble"], var.ubuntu_codename) ? {
-              puppet : {
-                install : true,
-                install_type : "aio",
-                collection : "puppet8",
-                version : local.puppet_version_map[var.ubuntu_codename],
-                package_name : "puppet-agent",
-                start_service : false,
-              }
-            } : {},
             {
+              bootcmd : [
+                "echo '${file("${path.module}/files/bootcmd.sh")}' > /tmp/bootcmd.sh",
+                "bash /tmp/bootcmd.sh"
+              ]
               write_files : concat(
                 [
                   {
@@ -131,10 +119,11 @@ data "cloudinit_config" "config" {
               apt : {
                 sources : merge(
                   {
-                    infrahouse : {
-                      source : "deb [signed-by=$KEY_FILE] https://release-${var.ubuntu_codename}.infrahouse.com/ $RELEASE main"
-                      key : file("${path.module}/files/DEB-GPG-KEY-infrahouse-${var.ubuntu_codename}")
-                    }
+                    # This is retained here for the purpose of illustration.
+                    # infrahouse : {
+                    #   source : "deb [signed-by=$KEY_FILE] https://release-${var.ubuntu_codename}.infrahouse.com/ $RELEASE main"
+                    #   key : file("${path.module}/files/DEB-GPG-KEY-infrahouse-${var.ubuntu_codename}")
+                    # }
                   },
                   var.extra_repos
                 )

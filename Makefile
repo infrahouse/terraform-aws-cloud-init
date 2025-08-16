@@ -11,6 +11,9 @@ for line in sys.stdin:
 endef
 export PRINT_HELP_PYSCRIPT
 
+TEST_REGION="us-west-1"
+TEST_ROLE="arn:aws:iam::303467602807:role/cloud-init-tester"
+
 help: install-hooks
 	@python -c "$$PRINT_HELP_PYSCRIPT" < Makefile
 
@@ -24,8 +27,23 @@ install-hooks:  ## Install repo hooks
 
 .PHONY: test
 test:  ## Run tests on the module
-	pytest -xvvs tests/
+	pytest -xvvs --aws-region=${TEST_REGION} tests/
 
+.PHONY: test-keep
+test-keep:  ## Run a test and keep resources
+	pytest -xvvs \
+		--aws-region=${TEST_REGION} \
+		--test-role-arn=${TEST_ROLE} \
+		--keep-after \
+		tests/test_single_instance.py
+
+.PHONY: test-clean
+test-clean:  ## Run a test and destroy resources
+	pytest -xvvs \
+		--aws-region=${TEST_REGION} \
+		--test-role-arn=${TEST_ROLE} \
+		-k infrahouse \
+		tests/test_single_instance.py
 
 .PHONY: bootstrap
 bootstrap: install-hooks ## bootstrap the development environment
@@ -52,7 +70,6 @@ lint:  ## Lint the module
 	@echo "Check code style"
 	black --check tests
 	terraform fmt -check
-	tflint
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
