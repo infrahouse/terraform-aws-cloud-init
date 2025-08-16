@@ -1,2 +1,3 @@
-pytest-infrahouse ~= 0.9
 infrahouse-core ~= 0.17
+python-mimeparse ~=2.0
+pytest-infrahouse ~= 0.9
