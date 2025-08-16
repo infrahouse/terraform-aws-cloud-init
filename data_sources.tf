@@ -1,11 +1,5 @@
 locals {
   external_facts_dir = "/etc/puppetlabs/facter/facts.d"
-  puppet_version_map = {
-    "focal" : "8.1.0"
-    "jammy" : "8.1.0"
-    "noble" : "8.10.0"
-    "oracular" : "8.10.0"
-  }
 }
 
 data "aws_region" "current" {}
