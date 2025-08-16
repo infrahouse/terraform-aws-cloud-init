@@ -27,7 +27,7 @@ install-hooks:  ## Install repo hooks
 
 .PHONY: test
 test:  ## Run tests on the module
-	pytest -xvvs tests/
+	pytest -xvvs --aws-region=${TEST_REGION} tests/
 
 .PHONY: test-keep
 test-keep:  ## Run a test and keep resources
