@@ -6,7 +6,7 @@ from time import sleep, time
 import pytest
 from infrahouse_core.aws.ec2_instance import EC2Instance
 from infrahouse_core.timeout import timeout
-from infrahouse_toolkit.terraform import terraform_apply
+from pytest_infrahouse import terraform_apply
 
 from tests.conftest import (
     LOG,

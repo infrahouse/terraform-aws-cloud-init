@@ -5,15 +5,9 @@ from pprint import pprint
 from textwrap import dedent
 
 import pytest
-from infrahouse_toolkit.terraform import terraform_apply
 from mimeparse import parse_mime_type
+from pytest_infrahouse import terraform_apply
 from yaml import load, Loader
-
-from tests.conftest import (
-    LOG,
-    TRACE_TERRAFORM,
-    DESTROY_AFTER,
-)
 
 
 @pytest.mark.parametrize(
@@ -61,7 +55,7 @@ from tests.conftest import (
         ),
     ],
 )
-def test_module(puppet_manifest, expected_fact, expected_runcmd):
+def test_module(puppet_manifest, expected_fact, expected_runcmd, keep_after):
     terraform_dir = "test_data"
     module_dir = osp.join(terraform_dir, "test_module")
 
@@ -77,9 +71,8 @@ def test_module(puppet_manifest, expected_fact, expected_runcmd):
 
     with terraform_apply(
         module_dir,
-        destroy_after=DESTROY_AFTER,
+        destroy_after=not keep_after,
         json_output=True,
-        enable_trace=TRACE_TERRAFORM,
     ) as tf_output:
         userdata = b64decode(tf_output["userdata"]["value"]).decode()
         assert userdata
