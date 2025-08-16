@@ -1,6 +1,6 @@
 import logging
 
-from infrahouse_toolkit.logging import setup_logging
+from infrahouse_core.logging import setup_logging
 
 LOG = logging.getLogger()
 TEST_ZONE = "ci-cd.infrahouse.com"
