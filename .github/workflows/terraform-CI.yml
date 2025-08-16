@@ -49,7 +49,6 @@ jobs:
       - name: Setup Python Environment
         run: |
           make bootstrap
-          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | sudo bash
 
       # Run all required linters
       - name: Code Style Check
