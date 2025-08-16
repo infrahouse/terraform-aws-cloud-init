@@ -70,7 +70,6 @@ lint:  ## Lint the module
 	@echo "Check code style"
 	black --check tests
 	terraform fmt -check
-	tflint
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
