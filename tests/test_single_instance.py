@@ -68,4 +68,9 @@ def test_module(
                     LOG.error("STDERR: %s", cerr)
                     sleep(5)
         prov_end = time()
-        LOG.info("Instance %s (%s) processed in %f seconds", instance_id, ami_vendor, prov_end - prov_start)
+        LOG.info(
+            "Instance %s (%s) processed in %f seconds",
+            instance_id,
+            ami_vendor,
+            prov_end - prov_start,
+        )
