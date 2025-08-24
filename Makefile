@@ -35,6 +35,7 @@ test-keep:  ## Run a test and keep resources
 		--aws-region=${TEST_REGION} \
 		--test-role-arn=${TEST_ROLE} \
 		--keep-after \
+		-k infrahouse \
 		tests/test_single_instance.py
 
 .PHONY: test-clean

@@ -5,8 +5,10 @@ locals {
 data "aws_region" "current" {}
 
 locals {
-  pre_puppet_cmd  = length(var.mounts) > 0 ? ["mount -a"] : []
-  puppet_manifest = var.puppet_manifest == null ? "${var.puppet_root_directory}/environments/${var.environment}/manifests/site.pp" : var.puppet_manifest
+  pre_puppet_cmd = length(var.mounts) > 0 ? ["mount -a"] : []
+  puppet_manifest = var.puppet_manifest == null ? (
+    "${var.puppet_root_directory}/environments/${var.environment}/manifests/site.pp"
+  ) : var.puppet_manifest
 }
 
 data "cloudinit_config" "config" {
@@ -36,8 +38,24 @@ data "cloudinit_config" "config" {
             length(var.mounts) > 0 ? { mounts : var.mounts } : {},
             {
               bootcmd : [
-                "echo '${file("${path.module}/files/bootcmd.sh")}' > /tmp/bootcmd.sh",
-                "bash /tmp/bootcmd.sh"
+                # Create auth inputs for APT repos
+                "echo '${base64encode(local.repo_pairs_json)}' > /var/tmp/apt-auth.json.b64",
+                "base64 -d /var/tmp/apt-auth.json.b64 > /var/tmp/apt-auth.json",
+                # Prepare and run secret resolver
+                "echo '${base64encode(file("${path.module}/files/apt_auth/generate_apt_auth.py"))}' > /var/tmp/generate_apt_auth.py.b64",
+                "base64 -d /var/tmp/generate_apt_auth.py.b64 > /usr/local/bin/generate_apt_auth.py",
+
+                # Probe for Python; log-and-skip if absent; otherwise run resolver
+                "echo '${base64encode(file("${path.module}/files/generate_apt_auth.sh"))}' > /var/tmp/generate_apt_auth.sh.b64",
+                "base64 -d /var/tmp/generate_apt_auth.sh.b64 > /usr/local/bin/generate_apt_auth.sh",
+                "chmod +x /usr/local/bin/generate_apt_auth.sh",
+                "AWS_DEFAULT_REGION=${data.aws_region.current.name} /usr/local/bin/generate_apt_auth.sh",
+
+                # Prepare and run InfraHouse repo installer
+                "echo '${base64encode(file("${path.module}/files/bootcmd.sh"))}' > /var/tmp/bootcmd.sh.b64",
+                "base64 -d /var/tmp/bootcmd.sh.b64 > /usr/local/bin/bootcmd",
+                "chmod +x /usr/local/bin/bootcmd",
+                "/usr/local/bin/bootcmd"
               ]
               write_files : concat(
                 [
@@ -125,7 +143,12 @@ data "cloudinit_config" "config" {
                     #   key : file("${path.module}/files/DEB-GPG-KEY-infrahouse-${var.ubuntu_codename}")
                     # }
                   },
-                  var.extra_repos
+                  {
+                    for repo in keys(var.extra_repos) : repo => {
+                      source : var.extra_repos[repo].source,
+                      key : var.extra_repos[repo].key,
+                    }
+                  }
                 )
               }
               packages : concat(
