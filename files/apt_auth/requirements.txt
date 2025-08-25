@@ -1,0 +1,2 @@
+boto3 ~= 1.35
+pyinstaller ~= 6.11

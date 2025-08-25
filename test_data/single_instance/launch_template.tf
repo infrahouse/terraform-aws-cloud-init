@@ -19,4 +19,7 @@ resource "aws_launch_template" "cloud-init" {
     http_endpoint = "enabled"
   }
   user_data = module.user-data.userdata
+  vpc_security_group_ids = [
+    aws_security_group.instance.id
+  ]
 }

@@ -69,3 +69,8 @@ data "aws_ami" "selected" {
     ]
   }
 }
+
+
+data "aws_subnet" "current" {
+  id = var.subnet_id
+}
