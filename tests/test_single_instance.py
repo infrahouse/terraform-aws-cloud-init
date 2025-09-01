@@ -1,5 +1,6 @@
 import json
-from os import path as osp
+from os import path as osp, remove
+from shutil import rmtree
 from textwrap import dedent
 from time import sleep, time
 
@@ -14,8 +15,10 @@ from tests.conftest import (
 )
 
 
+@pytest.mark.parametrize("aws_provider_version", ["~> 5.11", "~> 6.0"])
 @pytest.mark.parametrize("ami_vendor", ["ubuntu", "infrahouse"])
 def test_module(
+    aws_provider_version,
     service_network,
     test_role_arn,
     keep_after,
@@ -25,6 +28,41 @@ def test_module(
     subnet_private_id = service_network["subnet_private_ids"]["value"][0]
 
     terraform_module_dir = osp.join(TERRAFORM_ROOT_DIR, "single_instance")
+
+    # Delete .terraform directory and .terraform.lock.hcl to allow provider version changes
+    terraform_dir_path = osp.join(terraform_module_dir, ".terraform")
+    lock_file_path = osp.join(terraform_module_dir, ".terraform.lock.hcl")
+
+    try:
+        rmtree(terraform_dir_path)
+    except FileNotFoundError:
+        pass
+
+    try:
+        remove(lock_file_path)
+    except FileNotFoundError:
+        pass
+
+    # Update provider version
+    with open(f"{terraform_module_dir}/terraform.tf", "w") as fp:
+        fp.write(
+            f"""
+            terraform {{
+                required_version = "~> 1.0"
+                required_providers {{
+                    aws = {{
+                      source  = "hashicorp/aws"
+                      version = "{aws_provider_version}"
+                    }}
+                    cloudinit = {{
+                      source  = "hashicorp/cloudinit"
+                        version = "~> 2.3"
+                    }}                    
+                  }}
+                }}
+            """
+        )
+
     with open(osp.join(terraform_module_dir, "terraform.tfvars"), "w") as fp:
         fp.write(
             dedent(

@@ -7,7 +7,7 @@ data "aws_iam_policy_document" "required_permissions" {
 
 module "instance-profile" {
   source       = "registry.infrahouse.com/infrahouse/instance-profile/aws"
-  version      = "1.8.1"
+  version      = "1.9.0"
   permissions  = data.aws_iam_policy_document.required_permissions.json
-  profile_name = "cludinit_test"
+  profile_name = "cloudinit_test"
 }

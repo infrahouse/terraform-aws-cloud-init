@@ -1,9 +1,10 @@
+
 terraform {
-  //noinspection HILUnresolvedReference
+  required_version = "~> 1.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.11"
+      version = "~> 6.0"
     }
     cloudinit = {
       source  = "hashicorp/cloudinit"
@@ -11,3 +12,4 @@ terraform {
     }
   }
 }
+            
