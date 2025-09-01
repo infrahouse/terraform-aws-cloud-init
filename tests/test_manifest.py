@@ -59,18 +59,20 @@ from tests.conftest import TERRAFORM_ROOT_DIR
         ),
     ],
 )
-def test_module(aws_provider_version, puppet_manifest, expected_fact, expected_runcmd, keep_after):
+def test_module(
+    aws_provider_version, puppet_manifest, expected_fact, expected_runcmd, keep_after
+):
     module_dir = osp.join(TERRAFORM_ROOT_DIR, "test_module")
 
     # Delete .terraform directory and .terraform.lock.hcl to allow provider version changes
     terraform_dir = osp.join(module_dir, ".terraform")
     lock_file_path = osp.join(module_dir, ".terraform.lock.hcl")
-    
+
     try:
         rmtree(terraform_dir)
     except FileNotFoundError:
         pass
-    
+
     try:
         remove(lock_file_path)
     except FileNotFoundError:

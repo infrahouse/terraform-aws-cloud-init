@@ -51,12 +51,12 @@ def test_module(aws_provider_version, mounts, expected_mounts, keep_after):
     # Delete .terraform directory and .terraform.lock.hcl to allow provider version changes
     terraform_dir_path = osp.join(module_dir, ".terraform")
     lock_file_path = osp.join(module_dir, ".terraform.lock.hcl")
-    
+
     try:
         rmtree(terraform_dir_path)
     except FileNotFoundError:
         pass
-    
+
     try:
         remove(lock_file_path)
     except FileNotFoundError:

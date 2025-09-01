@@ -28,16 +28,16 @@ def test_module(
     subnet_private_id = service_network["subnet_private_ids"]["value"][0]
 
     terraform_module_dir = osp.join(TERRAFORM_ROOT_DIR, "single_instance")
-    
+
     # Delete .terraform directory and .terraform.lock.hcl to allow provider version changes
     terraform_dir_path = osp.join(terraform_module_dir, ".terraform")
     lock_file_path = osp.join(terraform_module_dir, ".terraform.lock.hcl")
-    
+
     try:
         rmtree(terraform_dir_path)
     except FileNotFoundError:
         pass
-    
+
     try:
         remove(lock_file_path)
     except FileNotFoundError:
