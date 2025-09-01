@@ -1,6 +1,22 @@
 # terraform-aws-cloud-init
-This is a module to prepare a userdata for an EC2 instance.
-The instance will be provisioned by [Puppet](https://www.puppet.com/).
+
+A Terraform module that generates cloud-init userdata for EC2 instances in
+a [Puppet](https://www.puppet.com/)-managed infrastructure.
+This module bridges the gap between AWS instance launch and Puppet configuration by
+handling essential bootstrapping tasks that must occur before Puppet can take control.
+
+## What it does
+
+This module creates a complete cloud-init configuration that:
+
+- **Configures AWS tooling** - Sets up AWS CLI with the appropriate region using the instance's IAM role
+- **Establishes Puppet context** - Injects environment and role facts that Puppet needs to determine configuration
+- **Sets up package repositories** - Configures access to the InfraHouse APT repository for Puppet code and tooling
+- **Bootstraps essential packages** - Installs `puppet-code`, `infrahouse-toolkit`, and any additional packages you specify
+- **Launches Puppet** - Executes the `ih-puppet` wrapper to apply your Puppet manifests
+
+This approach ensures your EC2 instances are properly configured from first boot, with all the context
+and tooling needed for your Puppet-based infrastructure management.
 
 Before Puppet kicks in, [Cloud-init](https://cloudinit.readthedocs.io/en/latest/index.html) pre-configures the instance.
 
@@ -21,7 +37,7 @@ Tools as well as the puppet code will be installed from the infrahouse APT repos
 * Bootstrap packages
 
   * `puppet-code` - the puppet manifests and other code.
-  * `infrahouse-toolkit` - The InfraHouse toolkit. Specifically, we need a puppet wrapper `ih-ppuppet`.
+  * `infrahouse-toolkit` - The InfraHouse toolkit. Specifically, we need a puppet wrapper `ih-puppet`.
   * packages from the `var.packages` list.
 
 Finally, [Cloud-init](https://cloudinit.readthedocs.io/en/latest/index.html) runs a puppet wrapper (`ih-puppet`) to apply
@@ -59,14 +75,14 @@ resource "aws_launch_template" "jumphost" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.5 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.11 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.11, < 7.0 |
 | <a name="requirement_cloudinit"></a> [cloudinit](#requirement\_cloudinit) | ~> 2.3 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.11 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.11, < 7.0 |
 | <a name="provider_cloudinit"></a> [cloudinit](#provider\_cloudinit) | ~> 2.3 |
 
 ## Modules
