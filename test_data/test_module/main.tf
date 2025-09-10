@@ -5,8 +5,13 @@ module "test" {
   role        = "foo"
   extra_repos = {
     "foo" : {
-      source : "deb [signed-by=$KEY_FILE] foo main"
+      source : "deb [signed-by=$KEY_FILE] https://foo.com foo main"
       key : "bar"
+    }
+    "999-bar" : {
+      source : "deb [signed-by=$KEY_FILE] https://bar.com bar main"
+      key : "bar"
+      priority : 999
     }
   }
   extra_files = [

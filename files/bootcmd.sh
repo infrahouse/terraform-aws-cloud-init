@@ -5,7 +5,7 @@ KEYRING_DIR="/etc/apt/keyrings"
 KEYRING_PATH="${KEYRING_DIR}/infrahouse.gpg"
 REPO_HOST="release-${UBUNTU_CODENAME}.infrahouse.com"
 REPO_URL="https://${REPO_HOST}/"
-REPO_LIST="/etc/apt/sources.list.d/infrahouse.list"
+REPO_LIST="/etc/apt/sources.list.d/50-infrahouse.list"
 
 declare -A fingerprints=(
   [noble]="A627 B776 0019 0BA5 1B90  3453 D37A 181B 689A D619"

@@ -34,6 +34,7 @@ variable "extra_repos" {
         key      = string
         machine  = optional(string)
         authFrom = optional(string)
+        priority = optional(number)
       }
     )
   )

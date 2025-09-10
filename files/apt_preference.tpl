@@ -1,0 +1,4 @@
+
+Package: *
+Pin: origin "${origin}"
+Pin-Priority: ${priority}
