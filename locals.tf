@@ -1,5 +1,5 @@
 locals {
-  module_version = "2.1.0"
+  module_version = "2.2.0"
 
   repo_pairs = [
     for name in sort(keys(var.extra_repos)) : {
