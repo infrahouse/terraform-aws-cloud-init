@@ -131,7 +131,8 @@ data "cloudinit_config" "config" {
                     permissions : "0644"
                   }
                 ] : [],
-                var.extra_files
+                var.extra_files,
+                local.repo_preferences,
               )
               package_update : true,
               apt : {

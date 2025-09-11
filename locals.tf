@@ -11,4 +11,15 @@ locals {
   ]
 
   repo_pairs_json = jsonencode(local.repo_pairs)
+  repo_preferences = [
+    for name, repo in var.extra_repos : {
+      content = templatefile("${path.module}/files/apt_preference.tpl", {
+        origin   = regex("https?://([^/\\s]+)", repo.source)[0]
+        priority = repo.priority
+      })
+      path        = "/etc/apt/preferences.d/${regex("https?://([^/\\s]+)", repo.source)[0]}.pref"
+      permissions = "0644"
+    }
+    if try(repo.priority, null) != null
+  ]
 }
