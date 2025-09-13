@@ -15,7 +15,9 @@ from tests.conftest import (
 )
 
 
-@pytest.mark.parametrize("aws_provider_version", ["~> 5.11", "~> 6.0"])
+@pytest.mark.parametrize(
+    "aws_provider_version", ["~> 5.11", "~> 6.0"], ids=["aws-5", "aws-6"]
+)
 @pytest.mark.parametrize("ami_vendor", ["ubuntu", "infrahouse"])
 def test_module(
     aws_provider_version,
