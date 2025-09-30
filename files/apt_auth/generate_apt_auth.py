@@ -11,8 +11,8 @@ def generate_apt_auth(auth_inputs):
             for pair in json.load(f):
                 machine = pair["machine"]
                 auth_from = pair["authFrom"]
-                auth = json.loads(client.get_secret_value(auth_from))
-                login = auth.keys()[0]
+                auth = json.loads(client.get_secret_value(SecretId=auth_from)["SecretString"])
+                login = list(auth.keys())[0]
                 password = auth[login]
                 auth_fp.write(f"machine {machine} login {login} password {password}\n")
 
