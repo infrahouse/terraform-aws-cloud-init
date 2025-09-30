@@ -101,6 +101,13 @@ def test_module(
                         LOG.info("Sending command: %s to %s", cmd, instance_id)
                         exit_code, cout, cerr = instance.execute_command(cmd)
                         assert exit_code == 0
+                    cmd = "cat /etc/apt/auth.conf.d/50user"
+                    exit_code, cout, _ = instance.execute_command(cmd)
+                    assert exit_code == 0
+                    assert (
+                        cout
+                        == f"machine us.archive.ubuntu.com login foo password bar\n"
+                    )
                     break
                 except AssertionError as err:
                     LOG.error("%s failed with %s", cmd, err)
