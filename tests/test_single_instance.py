@@ -108,6 +108,23 @@ def test_module(
                         cout
                         == f"machine us.archive.ubuntu.com login foo password bar\n"
                     )
+                    # Check file permissions for issue #55
+                    cmd = "stat -c '%a %U %G' /etc/apt/auth.conf.d/50user"
+                    exit_code, cout, cerr = instance.execute_command(cmd)
+                    LOG.info(
+                        "Permissions check - exit_code: %s, stdout: %s, stderr: %s",
+                        exit_code,
+                        cout,
+                        cerr,
+                    )
+                    assert exit_code == 0
+                    permissions, owner, group = cout.strip().split()
+                    assert owner == "root", f"Expected owner 'root', got '{owner}'"
+                    assert group == "root", f"Expected group 'root', got '{group}'"
+                    assert permissions == "600", (
+                        f"Expected permissions '600' (rw-------), got '{permissions}'. "
+                        f"File contains passwords and should not be world-readable!"
+                    )
                     break
                 except AssertionError as err:
                     LOG.error("%s failed with %s", cmd, err)
