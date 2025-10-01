@@ -111,8 +111,12 @@ def test_module(
                     # Check file permissions for issue #55
                     cmd = "stat -c '%a %U %G' /etc/apt/auth.conf.d/50user"
                     exit_code, cout, cerr = instance.execute_command(cmd)
-                    LOG.info("Permissions check - exit_code: %s, stdout: %s, stderr: %s",
-                            exit_code, cout, cerr)
+                    LOG.info(
+                        "Permissions check - exit_code: %s, stdout: %s, stderr: %s",
+                        exit_code,
+                        cout,
+                        cerr,
+                    )
                     assert exit_code == 0
                     permissions, owner, group = cout.strip().split()
                     assert owner == "root", f"Expected owner 'root', got '{owner}'"
