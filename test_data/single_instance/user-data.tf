@@ -17,7 +17,7 @@ module "user-data" {
 
 module "debian-auth" {
   source             = "registry.infrahouse.com/infrahouse/secret/aws"
-  version            = "1.1.0"
+  version            = "1.1.1"
   environment        = "development"
   secret_description = ""
   secret_name        = "debian-repo-http-auth"
