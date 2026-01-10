@@ -11,8 +11,16 @@ variable "custom_facts" {
 }
 
 variable "environment" {
-  description = "Environment name. Passed on as a puppet fact."
+  description = <<-EOT
+    Environment name. Passed on as a puppet fact.
+    Must contain only lowercase letters, numbers, and underscores (no hyphens).
+  EOT
   type        = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9_]+$", var.environment))
+    error_message = "environment must contain only lowercase letters, numbers, and underscores (no hyphens). Got: ${var.environment}"
+  }
 }
 
 variable "extra_files" {
@@ -108,8 +116,16 @@ variable "puppet_root_directory" {
 }
 
 variable "role" {
-  description = "Puppet role. Passed on as a puppet fact."
+  description = <<-EOT
+    Puppet role. Passed on as a puppet fact.
+    Must contain only lowercase letters, numbers, and underscores (no hyphens).
+  EOT
   type        = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9_]+$", var.role))
+    error_message = "role must contain only lowercase letters, numbers, and underscores (no hyphens). Got: ${var.role}"
+  }
 }
 
 variable "ssh_host_keys" {
@@ -127,7 +143,16 @@ variable "ssh_host_keys" {
 }
 
 variable "ubuntu_codename" {
-  description = "Ubuntu version to use for the jumphost."
+  description = <<-EOT
+    Ubuntu version codename to use. Determines which InfraHouse repository to configure.
+    Supported versions: focal (20.04), jammy (22.04), noble (24.04), oracular (24.10)
+    Note: Some versions may require additional GPG fingerprints in bootcmd.sh (see issue #62).
+  EOT
   type        = string
   default     = "jammy"
+
+  validation {
+    condition     = contains(["focal", "jammy", "noble", "oracular"], var.ubuntu_codename)
+    error_message = "ubuntu_codename must be one of: focal, jammy, noble, oracular. Got: ${var.ubuntu_codename}"
+  }
 }
