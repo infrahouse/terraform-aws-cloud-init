@@ -9,7 +9,6 @@ REPO_LIST="/etc/apt/sources.list.d/50-infrahouse.list"
 
 declare -A fingerprints=(
   [noble]="A627 B776 0019 0BA5 1B90  3453 D37A 181B 689A D619"
-  [oracular]="3D44 6885 9E06 D0C6 EE54  5D23 6170 D0DB FAF6 E9F2"
 )
 
 if ! test -f $REPO_LIST
