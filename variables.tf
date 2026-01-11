@@ -34,7 +34,29 @@ variable "extra_files" {
 }
 
 variable "extra_repos" {
-  description = "Additional APT repositories to configure on an instance."
+  description = <<-EOT
+    Additional APT repositories to configure on an instance.
+
+    Each repository requires:
+    - source: APT source line (e.g., "deb [signed-by=$KEY_FILE] https://example.com/ubuntu jammy main")
+    - key: GPG public key for the repository (PEM format)
+    - machine: (optional) Hostname for APT authentication (e.g., "apt.example.com")
+    - authFrom: (optional) ARN of AWS Secrets Manager secret containing credentials
+    - priority: (optional) APT preference priority (1-1000)
+
+    Note: machine and authFrom must be both set or both unset for authentication to work.
+
+    Example:
+    extra_repos = {
+      "my-repo" = {
+        source   = "deb [signed-by=$KEY_FILE] https://apt.example.com/ubuntu jammy main"
+        key      = "-----BEGIN PGP PUBLIC KEY BLOCK-----\n...\n-----END PGP PUBLIC KEY BLOCK-----"
+        machine  = "apt.example.com"
+        authFrom = "arn:aws:secretsmanager:us-west-2:123456789012:secret:apt-credentials"
+        priority = 500
+      }
+    }
+  EOT
   type = map(
     object(
       {
@@ -47,6 +69,33 @@ variable "extra_repos" {
     )
   )
   default = {}
+
+  validation {
+    condition = alltrue([
+      for name, repo in var.extra_repos :
+      (repo.machine == null && repo.authFrom == null) ? true : (repo.machine != null && repo.authFrom != null)
+    ])
+    error_message = <<-EOT
+      extra_repos: machine and authFrom must be both set or both unset.
+      If you need APT authentication, provide both machine (hostname) and authFrom (secret ARN).
+    EOT
+  }
+
+  validation {
+    condition = alltrue([
+      for name, repo in var.extra_repos :
+      repo.priority == null ? true : (repo.priority >= 1 && repo.priority <= 1000)
+    ])
+    error_message = "extra_repos.priority must be between 1 and 1000 if specified"
+  }
+
+  validation {
+    condition = alltrue([
+      for name, repo in var.extra_repos :
+      can(regex("https?://[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]", repo.source))
+    ])
+    error_message = "extra_repos.source must contain a valid HTTP or HTTPS URL with a proper hostname"
+  }
 }
 
 variable "gzip_userdata" {
