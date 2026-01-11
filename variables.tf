@@ -129,7 +129,10 @@ variable "role" {
 }
 
 variable "ssh_host_keys" {
-  description = "List of instance's SSH host keys.  Can be rsa, ecdsa, ed25519, etc. See https://cloudinit.readthedocs.io/en/latest/reference/examples.html#configure-instance-s-ssh-keys"
+  description = <<-EOT
+    List of instance's SSH host keys. Can be rsa, ecdsa, ed25519, etc.
+    See https://cloudinit.readthedocs.io/en/latest/reference/examples.html#configure-instance-s-ssh-keys
+  EOT
   type = list(
     object(
       {
@@ -139,7 +142,8 @@ variable "ssh_host_keys" {
       }
     )
   )
-  default = []
+  default   = []
+  sensitive = true
 }
 
 variable "ubuntu_codename" {
