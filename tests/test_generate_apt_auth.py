@@ -51,11 +51,14 @@ def test_generate_auth_single_repository(tmp_path: Path) -> None:
     # Mock only the write to /etc/apt/auth.conf.d/50user
     m = mock_open()
 
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)) as mock_file_open, \
-         patch("generate_apt_auth.os.chmod") as mock_chmod:
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ) as mock_file_open, patch("generate_apt_auth.os.chmod") as mock_chmod:
 
         # Execute
         generate_apt_auth(str(auth_inputs_file))
@@ -107,11 +110,14 @@ def test_generate_auth_multiple_repositories(tmp_path: Path) -> None:
 
     m = mock_open()
 
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)), \
-         patch("generate_apt_auth.os.chmod"):
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ), patch("generate_apt_auth.os.chmod"):
 
         # Execute
         generate_apt_auth(str(auth_inputs_file))
@@ -149,11 +155,14 @@ def test_file_permissions_set_correctly(tmp_path: Path) -> None:
 
     m = mock_open()
 
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)), \
-         patch("generate_apt_auth.os.chmod") as mock_chmod:
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ), patch("generate_apt_auth.os.chmod") as mock_chmod:
 
         # Execute
         generate_apt_auth(str(auth_inputs_file))
@@ -179,11 +188,14 @@ def test_missing_auth_inputs_file() -> None:
     mock_client = Mock()
     m = mock_open()
 
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)), \
-         pytest.raises(FileNotFoundError):
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ), pytest.raises(FileNotFoundError):
         generate_apt_auth("/nonexistent/path/auth_inputs.json")
 
 
@@ -204,11 +216,14 @@ def test_invalid_json_in_auth_inputs(tmp_path: Path) -> None:
     m = mock_open()
 
     # Execute & Verify
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)), \
-         pytest.raises(json.JSONDecodeError):
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ), pytest.raises(json.JSONDecodeError):
         generate_apt_auth(str(auth_inputs_file))
 
 
@@ -228,11 +243,14 @@ def test_empty_auth_inputs_file(tmp_path: Path) -> None:
     mock_client = Mock()
     m = mock_open()
 
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)), \
-         patch("generate_apt_auth.os.chmod"):
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ), patch("generate_apt_auth.os.chmod"):
 
         # Execute - should not raise exception
         generate_apt_auth(str(auth_inputs_file))
@@ -268,10 +286,14 @@ def test_secret_not_found_in_secrets_manager(tmp_path: Path) -> None:
 
     m = mock_open()
 
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)):
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ):
 
         # Execute & Verify
         with pytest.raises(ClientError) as exc_info:
@@ -296,16 +318,18 @@ def test_invalid_json_in_secret_value(tmp_path: Path) -> None:
 
     # Mock Secrets Manager to return invalid JSON
     mock_client = Mock()
-    mock_client.get_secret_value.return_value = {
-        "SecretString": "{ invalid json }"
-    }
+    mock_client.get_secret_value.return_value = {"SecretString": "{ invalid json }"}
 
     m = mock_open()
 
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)):
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ):
 
         # Execute & Verify
         with pytest.raises(json.JSONDecodeError):
@@ -332,10 +356,14 @@ def test_empty_secret_value(tmp_path: Path) -> None:
 
     m = mock_open()
 
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)):
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ):
 
         # Execute & Verify - empty dict will cause IndexError when accessing list(auth.keys())[0]
         with pytest.raises(IndexError):
@@ -360,11 +388,14 @@ def test_missing_machine_key_in_auth_input(tmp_path: Path) -> None:
     m = mock_open()
 
     # Execute & Verify
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)), \
-         pytest.raises(KeyError):
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ), pytest.raises(KeyError):
         generate_apt_auth(str(auth_inputs_file))
 
 
@@ -386,11 +417,14 @@ def test_missing_authfrom_key_in_auth_input(tmp_path: Path) -> None:
     m = mock_open()
 
     # Execute & Verify
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)), \
-         pytest.raises(KeyError):
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ), pytest.raises(KeyError):
         generate_apt_auth(str(auth_inputs_file))
 
 
@@ -412,12 +446,13 @@ def test_permission_error_writing_auth_file(tmp_path: Path) -> None:
 
     # Mock file open to raise PermissionError when opening output file
     def open_side_effect(path, *args, **kwargs):
-        if "/etc/apt" in str(path) and 'w' in args:
+        if "/etc/apt" in str(path) and "w" in args:
             raise PermissionError("Permission denied: /etc/apt/auth.conf.d/50user")
         return open(path, *args, **kwargs)
 
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=open_side_effect):
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open", side_effect=open_side_effect
+    ):
 
         # Execute & Verify
         with pytest.raises(PermissionError) as exc_info:
@@ -447,12 +482,17 @@ def test_permission_error_setting_chmod(tmp_path: Path) -> None:
 
     m = mock_open()
 
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)), \
-         patch("generate_apt_auth.os.chmod",
-               side_effect=PermissionError("Cannot change permissions")):
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ), patch(
+        "generate_apt_auth.os.chmod",
+        side_effect=PermissionError("Cannot change permissions"),
+    ):
 
         # Execute & Verify
         with pytest.raises(PermissionError) as exc_info:
@@ -491,10 +531,14 @@ def test_aws_access_denied_error(tmp_path: Path) -> None:
 
     m = mock_open()
 
-    with patch("generate_apt_auth.boto3.client", return_value=mock_client), \
-         patch("generate_apt_auth.open", side_effect=lambda path, *args, **kwargs:
-               m(path, *args, **kwargs) if "/etc/apt" in str(path)
-               else open(path, *args, **kwargs)):
+    with patch("generate_apt_auth.boto3.client", return_value=mock_client), patch(
+        "generate_apt_auth.open",
+        side_effect=lambda path, *args, **kwargs: (
+            m(path, *args, **kwargs)
+            if "/etc/apt" in str(path)
+            else open(path, *args, **kwargs)
+        ),
+    ):
 
         # Execute & Verify
         with pytest.raises(ClientError) as exc_info:
