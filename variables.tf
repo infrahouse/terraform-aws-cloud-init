@@ -149,14 +149,21 @@ variable "ssh_host_keys" {
 variable "ubuntu_codename" {
   description = <<-EOT
     Ubuntu version codename to use. Determines which InfraHouse repository to configure.
-    Supported versions: focal (20.04), jammy (22.04), noble (24.04), oracular (24.10)
-    Note: Some versions may require additional GPG fingerprints in bootcmd.sh (see issue #62).
+
+    Currently supported: noble (24.04 LTS)
+
+    Support Policy: This module supports current Ubuntu LTS releases only.
+    - noble (24.04) is supported until April 2029 (standard support EOL)
+    - When plucky (26.04) releases in April 2026, both noble and plucky will be supported
+    - Previous LTS versions (jammy, focal) are no longer supported due to expired GPG keys
+
+    Note: Non-LTS releases (like oracular) are not supported due to short 9-month lifecycles.
   EOT
   type        = string
-  default     = "jammy"
+  default     = "noble"
 
   validation {
-    condition     = contains(["focal", "jammy", "noble", "oracular"], var.ubuntu_codename)
-    error_message = "ubuntu_codename must be one of: focal, jammy, noble, oracular. Got: ${var.ubuntu_codename}"
+    condition     = contains(["noble"], var.ubuntu_codename)
+    error_message = "ubuntu_codename must be: noble. Previous versions (jammy, focal) have expired GPG keys. Got: ${var.ubuntu_codename}"
   }
 }

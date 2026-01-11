@@ -70,6 +70,51 @@ resource "aws_launch_template" "jumphost" {
   user_data = module.jumphost_userdata.userdata
 }
 ```
+
+## Ubuntu Version Support Policy
+
+This module follows a **LTS-only support policy** for Ubuntu versions.
+
+### Currently Supported Versions
+
+- **noble (24.04 LTS)** - Supported until April 2029 (default)
+
+### Future Support Timeline
+
+| Period | Supported Versions | Notes |
+|--------|-------------------|-------|
+| **Now - April 2026** | noble (24.04) | Current LTS only |
+| **April 2026 - 2029** | noble (24.04), plucky (26.04) | Both LTS versions supported |
+| **April 2029+** | plucky (26.04), 28.04 LTS | noble reaches standard EOL |
+
+### Why LTS-Only?
+
+**Non-LTS (interim) releases are not supported** because:
+- Only 9 months of support from Ubuntu (too short for production infrastructure)
+- Frequent version churn creates maintenance burden
+- Production systems should use LTS for stability
+
+**Previous LTS versions (jammy, focal) are no longer supported** because:
+- GPG repository signing keys have expired
+- Already migrated production systems to noble
+- Maintaining expired keys creates security risk
+
+### GPG Key Lifecycle
+
+This module validates GPG fingerprints for InfraHouse APT repositories during bootstrap.
+
+**Current key expiration:**
+- noble (24.04): Key expires **July 20, 2026**
+- ⚠️ **Action Required:** noble GPG key will be rotated to 5-year lifecycle before expiration
+
+**Future key rotation policy:**
+- GPG keys will have **5-year expiration** (matching Ubuntu LTS standard support)
+- New keys generated when new LTS releases
+- No mid-lifecycle rotation = no production incident risk
+- Users can adopt new LTS versions at their own pace
+
+See [infrahouse/aws-control-493370826424#355](https://github.com/infrahouse/aws-control-493370826424/issues/355) for current key rotation status.
+
 ## Requirements
 
 | Name | Version |
@@ -176,7 +221,7 @@ No modules.
 | <a name="input_puppet_root_directory"></a> [puppet\_root\_directory](#input\_puppet\_root\_directory) | Path where the puppet code is hosted. | `string` | `"/opt/puppet-code"` | no |
 | <a name="input_role"></a> [role](#input\_role) | Puppet role. Passed on as a puppet fact.<br/>Must contain only lowercase letters, numbers, and underscores (no hyphens). | `string` | n/a | yes |
 | <a name="input_ssh_host_keys"></a> [ssh\_host\_keys](#input\_ssh\_host\_keys) | List of instance's SSH host keys. Can be rsa, ecdsa, ed25519, etc.<br/>See https://cloudinit.readthedocs.io/en/latest/reference/examples.html#configure-instance-s-ssh-keys | <pre>list(<br/>    object(<br/>      {<br/>        type : string<br/>        private : string<br/>        public : string<br/>      }<br/>    )<br/>  )</pre> | `[]` | no |
-| <a name="input_ubuntu_codename"></a> [ubuntu\_codename](#input\_ubuntu\_codename) | Ubuntu version codename to use. Determines which InfraHouse repository to configure.<br/>Supported versions: focal (20.04), jammy (22.04), noble (24.04), oracular (24.10)<br/>Note: Some versions may require additional GPG fingerprints in bootcmd.sh (see issue #62). | `string` | `"jammy"` | no |
+| <a name="input_ubuntu_codename"></a> [ubuntu\_codename](#input\_ubuntu\_codename) | Ubuntu version codename to use. Determines which InfraHouse repository to configure.<br/><br/>Currently supported: noble (24.04 LTS)<br/><br/>Support Policy: This module supports current Ubuntu LTS releases only.<br/>- noble (24.04) is supported until April 2029 (standard support EOL)<br/>- When plucky (26.04) releases in April 2026, both noble and plucky will be supported<br/>- Previous LTS versions (jammy, focal) are no longer supported due to expired GPG keys<br/><br/>Note: Non-LTS releases (like oracular) are not supported due to short 9-month lifecycles. | `string` | `"noble"` | no |
 
 ## Outputs
 
