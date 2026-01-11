@@ -102,9 +102,10 @@ def generate_apt_auth(auth_inputs: str) -> None:
 
 
 if __name__ == "__main__":
-    from infrahouse_core.logging import setup_logging
-
-    setup_logging(LOG, debug=os.environ.get("DEBUG") in ("1", "true", "True"))
+    logging.basicConfig(
+        level=logging.DEBUG if os.environ.get("DEBUG") in ("1", "true", "True") else logging.INFO,
+        format="%(levelname)s %(name)s:%(filename)s:%(lineno)d %(message)s",
+    )
 
     if len(sys.argv) != 2:
         LOG.error("Usage: %s <auth_inputs_json_file>", sys.argv[0])
