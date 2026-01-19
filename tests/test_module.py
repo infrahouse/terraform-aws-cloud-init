@@ -10,7 +10,9 @@ from pytest_infrahouse import terraform_apply
 from yaml import load, Loader
 
 
-@pytest.mark.parametrize("aws_provider_version", ["~> 5.11", "~> 6.0"])
+@pytest.mark.parametrize(
+    "aws_provider_version", ["~> 5.11", "~> 6.0"], ids=["aws-5", "aws-6"]
+)
 @pytest.mark.parametrize(
     "mounts, expected_mounts",
     [

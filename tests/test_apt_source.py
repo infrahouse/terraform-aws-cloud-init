@@ -45,7 +45,9 @@ def parse_userdata(tf_output: dict[str, Any]) -> dict[str, Any]:
     return load(yaml_userdata, Loader=Loader)
 
 
-@pytest.mark.parametrize("aws_provider_version", ["~> 5.11", "~> 6.0"])
+@pytest.mark.parametrize(
+    "aws_provider_version", ["~> 5.11", "~> 6.0"], ids=["aws-5", "aws-6"]
+)
 def test_module(aws_provider_version, keep_after):
     module_dir = osp.join(TERRAFORM_ROOT_DIR, "apt_source")
 
@@ -111,7 +113,8 @@ def test_extra_repos_key_types(
     keep_after: bool,
 ) -> None:
     """Test that extra_repos correctly handles key, keyid, and keyserver options."""
-    module_dir = osp.join(TERRAFORM_ROOT_DIR, "apt_source")
+    # Use separate test_keyid directory to avoid modifying apt_source/main.tf
+    module_dir = osp.join(TERRAFORM_ROOT_DIR, "test_keyid")
 
     # Delete .terraform.lock.hcl to allow provider version changes
     lock_file_path = osp.join(module_dir, ".terraform.lock.hcl")

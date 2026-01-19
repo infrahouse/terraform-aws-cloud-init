@@ -3,10 +3,23 @@ module "test" {
   environment = "dev"
   role        = "foo"
   extra_repos = {
-    "test-repo" = {
-      source    = "deb [signed-by=$KEY_FILE] https://example.com/ubuntu noble main"
-      keyid     = "A627B7760019BA51B903453D37A181B689AD619"
-      keyserver = "keyserver.ubuntu.com"
+    "foo" : {
+      source : "deb [signed-by=$KEY_FILE] https://foo.com/ubuntu noble main"
+      key : "bar"
+    }
+    "bar" : {
+      source : "deb [signed-by=$KEY_FILE] https://bar.com/ubuntu noble main"
+      key : "key-bar"
+      ## machine as in ~/.netrc
+      ## instead of login/password in plaintext - a secret ARN with a JSON like
+      /*
+          {
+            "apt": "debian"
+          }
+       */
+      machine : "bar"
+      authFrom : "bar-secret-arn"
     }
   }
+  puppet_manifest = var.puppet_manifest
 }
