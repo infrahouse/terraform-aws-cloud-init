@@ -213,6 +213,10 @@ data "cloudinit_config" "config" {
                   )
                 ],
                 var.post_runcmd,
+                [
+                  # Marker file for integration tests to detect cloud-init completion
+                  "touch /var/run/puppet-done"
+                ]
               )
             }
           )
