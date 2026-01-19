@@ -138,17 +138,36 @@ data "cloudinit_config" "config" {
               apt : {
                 sources : merge(
                   {
-                    # This is retained here for the purpose of illustration.
+                    # The InfraHouse APT repository is now installed via bootcmd.sh script
+                    # (see lines 54-58 above). The script fetches the GPG key from the
+                    # repository URL, verifies its fingerprint, and creates the apt
+                    # sources list at /etc/apt/sources.list.d/50-infrahouse.list.
+                    # This approach avoids embedding the full GPG key in userdata.
+                    #
+                    # Previously it was installed here inline (retained for illustration):
                     # infrahouse : {
                     #   source : "deb [signed-by=$KEY_FILE] https://release-${var.ubuntu_codename}.infrahouse.com/ $RELEASE main"
                     #   key : file("${path.module}/files/DEB-GPG-KEY-infrahouse-${var.ubuntu_codename}")
                     # }
                   },
                   {
-                    for repo in keys(var.extra_repos) : repo => {
-                      source : var.extra_repos[repo].source,
-                      key : var.extra_repos[repo].key,
-                    }
+                    for repo in keys(var.extra_repos) : repo => merge(
+                      {
+                        source : var.extra_repos[repo].source
+                      },
+                      # Include 'key' if provided (embedded GPG key)
+                      var.extra_repos[repo].key != null ? {
+                        key : var.extra_repos[repo].key
+                      } : {},
+                      # Include 'keyid' if provided (fetch from keyserver)
+                      var.extra_repos[repo].keyid != null ? {
+                        keyid : var.extra_repos[repo].keyid
+                      } : {},
+                      # Include 'keyserver' if provided (custom keyserver for keyid)
+                      var.extra_repos[repo].keyserver != null ? {
+                        keyserver : var.extra_repos[repo].keyserver
+                      } : {}
+                    )
                   }
                 )
               }

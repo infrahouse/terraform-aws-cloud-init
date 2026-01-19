@@ -39,14 +39,27 @@ variable "extra_repos" {
 
     Each repository requires:
     - source: APT source line (e.g., "deb [signed-by=$KEY_FILE] https://example.com/ubuntu jammy main")
-    - key: GPG public key for the repository (PEM format)
+
+    Key options (use ONE of the following):
+    - key: (optional) GPG public key for the repository (PEM format)
+    - keyid: (optional) GPG key ID or fingerprint to import from a keyserver
+    - keyserver: (optional) Keyserver URL to fetch keyid from (default: keyserver.ubuntu.com)
+
+    Note: Either 'key' OR 'keyid' must be provided. If using 'keyid', you can optionally
+    specify a custom 'keyserver'. Using 'keyid' reduces userdata size by ~3KB per repository
+    (GPG keys are typically 3-5KB, while a keyid is ~50 bytes). This is important because
+    AWS limits userdata to 16KB compressed, so embedded keys can quickly exhaust this limit.
+
+    Authentication options:
     - machine: (optional) Hostname for APT authentication (e.g., "apt.example.com")
     - authFrom: (optional) ARN of AWS Secrets Manager secret containing credentials
-    - priority: (optional) APT preference priority (1-1000)
 
     Note: machine and authFrom must be both set or both unset for authentication to work.
 
-    Example:
+    Other options:
+    - priority: (optional) APT preference priority (1-1000)
+
+    Example with embedded key:
     extra_repos = {
       "my-repo" = {
         source   = "deb [signed-by=$KEY_FILE] https://apt.example.com/ubuntu jammy main"
@@ -56,15 +69,26 @@ variable "extra_repos" {
         priority = 500
       }
     }
+
+    Example with keyid (recommended to save userdata space):
+    extra_repos = {
+      "my-repo" = {
+        source    = "deb [signed-by=$KEY_FILE] https://apt.example.com/ubuntu noble main"
+        keyid     = "A627B7760019BA51B903453D37A181B689AD619"
+        keyserver = "keyserver.ubuntu.com"  # optional, this is the default
+      }
+    }
   EOT
   type = map(
     object(
       {
-        source   = string
-        key      = string
-        machine  = optional(string)
-        authFrom = optional(string)
-        priority = optional(number)
+        source    = string
+        key       = optional(string)
+        keyid     = optional(string)
+        keyserver = optional(string)
+        machine   = optional(string)
+        authFrom  = optional(string)
+        priority  = optional(number)
       }
     )
   )
@@ -95,6 +119,33 @@ variable "extra_repos" {
       can(regex("https?://[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]", repo.source))
     ])
     error_message = "extra_repos.source must contain a valid HTTP or HTTPS URL with a proper hostname"
+  }
+
+  validation {
+    condition = alltrue([
+      for name, repo in var.extra_repos :
+      (repo.key != null && repo.keyid == null) || (repo.key == null && repo.keyid != null)
+    ])
+    error_message = <<-EOT
+      extra_repos: exactly one of 'key' or 'keyid' must be provided for each repository.
+      Use 'key' to embed the full GPG key, or 'keyid' to fetch from a keyserver.
+    EOT
+  }
+
+  validation {
+    condition = alltrue([
+      for name, repo in var.extra_repos :
+      repo.keyserver == null ? true : repo.keyid != null
+    ])
+    error_message = "extra_repos: 'keyserver' can only be specified when 'keyid' is provided"
+  }
+
+  validation {
+    condition = alltrue([
+      for name, repo in var.extra_repos :
+      repo.keyid == null ? true : can(regex("^[A-Fa-f0-9 ]+$", repo.keyid))
+    ])
+    error_message = "extra_repos: 'keyid' must be a valid hexadecimal string (GPG key ID or fingerprint, spaces allowed)"
   }
 }
 

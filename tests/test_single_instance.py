@@ -91,7 +91,7 @@ def test_module(
     ) as tf_output:
         LOG.info("%s", json.dumps(tf_output, indent=4))
         instance_id = tf_output["instance_id"]["value"]
-        instance = EC2Instance(instance_id, role_arn=test_role_arn)
+        instance = EC2Instance(instance_id, role_arn=test_role_arn, region=aws_region)
         prov_start = time()
         with timeout(900):
             while True:
