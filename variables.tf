@@ -12,6 +12,12 @@ variable "custom_facts" {
     A map of custom Puppet facts to inject into the instance.
     These facts will be written to /etc/puppetlabs/facter/facts.d/custom.json
     and available during Puppet runs.
+
+    Example:
+    custom_facts = {
+      "my_app_version" = "1.2.3"
+      "cluster_name"   = "production"
+    }
   EOT
   type        = any
   default     = {}
@@ -31,7 +37,23 @@ variable "environment" {
 }
 
 variable "extra_files" {
-  description = "Additional files to create on an instance."
+  description = <<-EOT
+    Additional files to create on an instance via cloud-init write_files.
+
+    Each file requires:
+    - content: The file content as a string
+    - path: Absolute path where the file will be created
+    - permissions: File permissions in octal format (e.g., "0644", "0755")
+
+    Example:
+    extra_files = [
+      {
+        content     = "Hello World"
+        path        = "/etc/my-config.txt"
+        permissions = "0644"
+      }
+    ]
+  EOT
   type = list(object({
     content     = string
     path        = string
@@ -157,7 +179,10 @@ variable "extra_repos" {
 }
 
 variable "gzip_userdata" {
-  description = "Whether compress user data or not."
+  description = <<-EOT
+    Whether to gzip compress the userdata.
+    Enable this if userdata exceeds AWS limits (16KB compressed).
+  EOT
   type        = bool
   default     = false
 }
@@ -175,24 +200,64 @@ variable "mounts" {
 }
 
 variable "packages" {
-  description = "List of packages to install when the instances bootstraps."
+  description = <<-EOT
+    Additional packages to install when the instance bootstraps.
+
+    Note: puppet-code and infrahouse-toolkit are always installed automatically.
+    This list is for any extra packages your instance needs.
+  EOT
   type        = list(string)
   default     = []
 }
 
 variable "pre_runcmd" {
-  description = "Commands to run before runcmd"
+  description = <<-EOT
+    Commands to run before Puppet applies the manifest.
+
+    Execution order:
+    1. bootcmd (APT repo setup)
+    2. package installation
+    3. pre_runcmd  <-- these commands
+    4. ih-puppet apply
+    5. post_runcmd
+
+    Example:
+    pre_runcmd = [
+      "mkdir -p /opt/myapp",
+      "echo 'Preparing for Puppet run' >> /var/log/cloud-init-output.log"
+    ]
+  EOT
   type        = list(string)
   default     = []
 }
 
 variable "post_runcmd" {
-  description = "Commands to run after runcmd"
+  description = <<-EOT
+    Commands to run after Puppet applies the manifest.
+
+    Execution order:
+    1. bootcmd (APT repo setup)
+    2. package installation
+    3. pre_runcmd
+    4. ih-puppet apply
+    5. post_runcmd  <-- these commands
+    6. touch /var/run/puppet-done (completion marker)
+
+    Example:
+    post_runcmd = [
+      "systemctl restart myapp",
+      "echo 'Cloud-init complete' >> /var/log/cloud-init-output.log"
+    ]
+  EOT
   type        = list(string)
   default     = []
 }
+
 variable "puppet_debug_logging" {
-  description = "Enable debug logging if true."
+  description = <<-EOT
+    Enable debug logging for ih-puppet.
+    When true, passes --debug flag to ih-puppet for verbose output.
+  EOT
   type        = bool
   default     = false
 }
