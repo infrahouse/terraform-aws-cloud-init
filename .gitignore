@@ -9,3 +9,5 @@ terraform.tfvars
 
 .claude/reviews
 .claude/*.local.json
+
+pytest-*-output.log
