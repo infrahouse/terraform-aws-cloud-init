@@ -1,16 +1,18 @@
 locals {
   module_version = "2.2.2"
 
+  # Extract repos that have APT authentication configured (both machine and authFrom set)
   repo_pairs = [
-    for name in sort(keys(var.extra_repos)) : {
-      machine  = try(var.extra_repos[name].machine, null)
-      authFrom = try(var.extra_repos[name].authFrom, null)
+    for name, repo in var.extra_repos : {
+      machine  = repo.machine
+      authFrom = repo.authFrom
     }
-    if try(var.extra_repos[name].machine, null) != null
-    && try(var.extra_repos[name].authFrom, null) != null
+    if repo.machine != null && repo.authFrom != null
   ]
 
   repo_pairs_json = jsonencode(local.repo_pairs)
+
+  # Generate APT preference files for repos with custom priority
   repo_preferences = [
     for name, repo in var.extra_repos : {
       content = templatefile("${path.module}/files/apt_preference.tpl", {
@@ -20,6 +22,6 @@ locals {
       path        = "/etc/apt/preferences.d/${regex("https?://([^/\\s]+)", repo.source)[0]}.pref"
       permissions = "0644"
     }
-    if try(repo.priority, null) != null
+    if repo.priority != null
   ]
 }

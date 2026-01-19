@@ -23,6 +23,10 @@ data "cloudinit_config" "config" {
         "#cloud-config",
         yamlencode(
           merge(
+            #-------------------------------------------------------------------
+            # SSH Host Keys Configuration
+            # Configures pre-generated SSH host keys for consistent fingerprints
+            #-------------------------------------------------------------------
             length(var.ssh_host_keys) > 0 ? { ssh_deletekeys : true } : {},
             length(var.ssh_host_keys) > 0 ?
             {
