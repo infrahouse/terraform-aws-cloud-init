@@ -11,3 +11,7 @@ terraform.tfvars
 .claude/*.local.json
 
 pytest-*-output.log
+
+# Dynamically generated test files
+test_data/test_keyid/main.tf
+test_data/test_keyid/terraform.tf
