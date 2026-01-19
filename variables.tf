@@ -314,13 +314,11 @@ variable "ssh_host_keys" {
     See https://cloudinit.readthedocs.io/en/latest/reference/examples.html#configure-instance-s-ssh-keys
   EOT
   type = list(
-    object(
-      {
-        type : string
-        private : string
-        public : string
-      }
-    )
+    object({
+      type    = string
+      private = string
+      public  = string
+    })
   )
   default   = []
   sensitive = true
