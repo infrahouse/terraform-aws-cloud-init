@@ -129,4 +129,7 @@ def test_module(
                 pprint(facts)
                 assert facts["ih-puppet"]["manifest"] == expected_fact
         assert found_ih_puppet_json
-        assert ud_obj["runcmd"][-1].split(" ") == expected_runcmd
+        # ih-puppet command is second-to-last (before the puppet-done marker)
+        assert ud_obj["runcmd"][-2].split(" ") == expected_runcmd
+        # Verify puppet-done marker is the last command
+        assert ud_obj["runcmd"][-1] == "touch /var/run/puppet-done"
