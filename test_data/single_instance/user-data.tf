@@ -2,9 +2,6 @@ module "user-data" {
   source      = "./../../"
   environment = "development"
   role        = "base"
-  post_runcmd = [
-    "touch /tmp/puppet-done"
-  ]
   extra_repos = {
     "fake" : {
       source : "deb https://us.archive.ubuntu.com/ubuntu $RELEASE main"

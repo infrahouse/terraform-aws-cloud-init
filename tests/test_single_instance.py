@@ -97,7 +97,7 @@ def test_module(
             while True:
                 cout, cerr = (None, None)
                 try:
-                    for cmd in ["ls /tmp/puppet-done", "ih-aws --version"]:
+                    for cmd in ["ls /var/run/puppet-done", "ih-aws --version"]:
                         LOG.info("Sending command: %s to %s", cmd, instance_id)
                         exit_code, cout, cerr = instance.execute_command(cmd)
                         assert exit_code == 0
