@@ -1,11 +1,18 @@
 variable "cancel_instance_refresh_on_error" {
-  description = "If True, ih-puppet will attempt to cancel instance refreshes on an autoscaling group, this instance is a part of."
+  description = <<-EOT
+    If True, ih-puppet will attempt to cancel instance refreshes on an autoscaling group
+    this instance is a part of.
+  EOT
   type        = bool
   default     = false
 }
 
 variable "custom_facts" {
-  description = "A map of custom puppet facts"
+  description = <<-EOT
+    A map of custom Puppet facts to inject into the instance.
+    These facts will be written to /etc/puppetlabs/facter/facts.d/custom.json
+    and available during Puppet runs.
+  EOT
   type        = any
   default     = {}
 }
@@ -156,7 +163,12 @@ variable "gzip_userdata" {
 }
 
 variable "mounts" {
-  description = "List of volumes to be mounted in the instance. One list item is a list itself with values [ fs_spec, fs_file, fs_vfstype, fs_mntops, fs-freq, fs_passno ]"
+  description = <<-EOT
+    List of volumes to be mounted in the instance. One list item is a list itself with values:
+    [ fs_spec, fs_file, fs_vfstype, fs_mntops, fs_freq, fs_passno ]
+
+    See cloud-init cc_mounts documentation for details.
+  EOT
   default     = []
   type        = list(list(string))
   nullable    = false
@@ -198,7 +210,10 @@ variable "puppet_hiera_config_path" {
 }
 
 variable "puppet_manifest" {
-  description = "Path to puppet manifest. By default ih-puppet will apply {root_directory}/environments/{environment}/manifests/site.pp."
+  description = <<-EOT
+    Path to puppet manifest.
+    By default ih-puppet will apply {root_directory}/environments/{environment}/manifests/site.pp.
+  EOT
   type        = string
   default     = null
 }
