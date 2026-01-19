@@ -1,9 +1,35 @@
 # terraform-aws-cloud-init
 
+[![Need Help?](https://img.shields.io/badge/Need%20Help%3F-Contact%20Us-0066CC)](https://infrahouse.com/contact)
+[![Docs](https://img.shields.io/badge/docs-github.io-blue)](https://infrahouse.github.io/terraform-aws-cloud-init/)
+[![Registry](https://img.shields.io/badge/Terraform-Registry-purple?logo=terraform)](https://registry.terraform.io/modules/infrahouse/cloud-init/aws/latest)
+[![Release](https://img.shields.io/github/release/infrahouse/terraform-aws-cloud-init.svg)](https://github.com/infrahouse/terraform-aws-cloud-init/releases/latest)
+[![AWS EC2](https://img.shields.io/badge/AWS-EC2-orange?logo=amazonec2)](https://aws.amazon.com/ec2/)
+[![Security](https://img.shields.io/github/actions/workflow/status/infrahouse/terraform-aws-cloud-init/vuln-scanner-pr.yml?label=Security)](https://github.com/infrahouse/terraform-aws-cloud-init/actions/workflows/vuln-scanner-pr.yml)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+
 A Terraform module that generates cloud-init userdata for EC2 instances in
 a [Puppet](https://www.puppet.com/)-managed infrastructure.
 This module bridges the gap between AWS instance launch and Puppet configuration by
 handling essential bootstrapping tasks that must occur before Puppet can take control.
+
+## Features
+
+- **Puppet Integration** - Injects environment and role facts for Puppet-based configuration management
+- **AWS Region Configuration** - Automatically configures AWS CLI with the instance's region
+- **APT Repository Management** - Sets up InfraHouse APT repository with GPG key validation
+- **Custom APT Repositories** - Support for additional repositories with optional authentication via AWS Secrets Manager
+- **Package Installation** - Installs `puppet-code`, `infrahouse-toolkit`, and custom packages
+- **SSH Host Keys** - Pre-configure instance SSH keys for consistent host identification
+- **Custom Facts** - Inject arbitrary Puppet facts as JSON
+- **Execution Hooks** - Run custom commands before (`pre_runcmd`) or after (`post_runcmd`) Puppet
+- **Volume Mounts** - Configure filesystem mounts before Puppet runs
+- **Gzip Compression** - Optional userdata compression for large configurations
+- **Ubuntu LTS Support** - Tested with Ubuntu noble (24.04 LTS)
+
+## Architecture
+
+![Cloud-Init Bootstrap Flow](docs/assets/architecture.png)
 
 ## What it does
 
@@ -170,6 +196,15 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_userdata"></a> [userdata](#output\_userdata) | Rendered user-data with cloudinit config. |
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to submit
+issues, feature requests, and pull requests.
+
+## License
+
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
 
 <!-- BEGIN_TF_DOCS -->
 
