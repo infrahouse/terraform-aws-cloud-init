@@ -9,7 +9,7 @@ Minimal configuration for a web server:
 ```hcl
 module "webserver_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.2.2"
+  version = "2.2.3"
 
   environment = "production"
   role        = "webserver"
@@ -23,7 +23,7 @@ Install additional packages during bootstrap:
 ```hcl
 module "webserver_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.2.2"
+  version = "2.2.3"
 
   environment = "production"
   role        = "webserver"
@@ -43,7 +43,7 @@ Inject custom Puppet facts:
 ```hcl
 module "app_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.2.2"
+  version = "2.2.3"
 
   environment = "production"
   role        = "app_server"
@@ -63,7 +63,7 @@ Run commands before and after Puppet:
 ```hcl
 module "app_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.2.2"
+  version = "2.2.3"
 
   environment = "production"
   role        = "app_server"
@@ -87,7 +87,7 @@ Mount EBS volumes before Puppet runs:
 ```hcl
 module "database_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.2.2"
+  version = "2.2.3"
 
   environment = "production"
   role        = "database"
@@ -109,7 +109,7 @@ Configure a private APT repository with authentication:
 ```hcl
 module "app_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.2.2"
+  version = "2.2.3"
 
   environment = "production"
   role        = "app_server"
@@ -145,7 +145,7 @@ Pre-configure SSH host keys for consistent identification:
 ```hcl
 module "jumphost_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.2.2"
+  version = "2.2.3"
 
   environment = "production"
   role        = "jumphost"
@@ -190,7 +190,7 @@ Create additional configuration files:
 ```hcl
 module "app_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.2.2"
+  version = "2.2.3"
 
   environment = "production"
   role        = "app_server"
@@ -220,7 +220,7 @@ Enable compression for large userdata:
 ```hcl
 module "app_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.2.2"
+  version = "2.2.3"
 
   environment    = "production"
   role           = "app_server"
@@ -239,7 +239,7 @@ Enable verbose Puppet output for troubleshooting:
 ```hcl
 module "app_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.2.2"
+  version = "2.2.3"
 
   environment         = "development"
   role                = "app_server"
@@ -254,7 +254,7 @@ A comprehensive example combining multiple features:
 ```hcl
 module "production_app_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.2.2"
+  version = "2.2.3"
 
   environment = "production"
   role        = "app_server"

@@ -29,7 +29,7 @@ configurations.
 ```hcl
 module "webserver_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.2.2"
+  version = "2.2.3"
 
   environment = "production"
   role        = "webserver"
