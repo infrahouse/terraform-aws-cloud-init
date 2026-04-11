@@ -1,0 +1,7 @@
+framework:
+  - terraform
+skip-path:
+  - test_data/
+  - tests/
+quiet: true
+compact: true
