@@ -18,7 +18,6 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 from generate_apt_auth import generate_apt_auth
 
-
 # Happy Path Tests
 
 

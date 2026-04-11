@@ -33,8 +33,7 @@ def test_module(aws_provider_version, keep_after):
 
     # Update provider version
     with open(f"{module_dir}/terraform.tf", "w") as fp:
-        fp.write(
-            f"""
+        fp.write(f"""
             terraform {{
                 required_version = "~> 1.0"
                 required_providers {{
@@ -48,8 +47,7 @@ def test_module(aws_provider_version, keep_after):
                     }}                    
                   }}
                 }}
-            """
-        )
+            """)
 
     with terraform_apply(
         module_dir,
@@ -67,13 +65,11 @@ def test_module(aws_provider_version, keep_after):
         print(json.dumps(ud_obj, indent=4))
         assert (
             {
-                "content": dedent(
-                    """
+                "content": dedent("""
                     Package: *
                     Pin: origin "bar.com"
                     Pin-Priority: 999
-                    """
-                ),
+                    """),
                 "path": "/etc/apt/preferences.d/bar.com.pref",
                 "permissions": "0644",
             }

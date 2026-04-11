@@ -66,8 +66,7 @@ def test_module(aws_provider_version, mounts, expected_mounts, keep_after):
 
     # Update provider version
     with open(f"{module_dir}/terraform.tf", "w") as fp:
-        fp.write(
-            f"""
+        fp.write(f"""
             terraform {{
                 required_version = "~> 1.0"
                 required_providers {{
@@ -81,17 +80,12 @@ def test_module(aws_provider_version, mounts, expected_mounts, keep_after):
                     }}                    
                   }}
                 }}
-            """
-        )
+            """)
 
     with open(osp.join(module_dir, "terraform.tfvars"), "w") as fp:
-        fp.write(
-            dedent(
-                f"""
+        fp.write(dedent(f"""
                 mounts = {mounts or "null"}
-                """
-            )
-        )
+                """))
 
     with terraform_apply(
         module_dir,

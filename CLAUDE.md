@@ -2,11 +2,20 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## First Steps
+
+**Your first tool call in this repository MUST be reading .claude/CODING_STANDARD.md.
+Do not read any other files, search, or take any actions until you have read it.**
+This contains InfraHouse's comprehensive coding standards for Terraform, Python, and general formatting rules.
+
 ## Overview
 
-This is a Terraform module that generates cloud-init userdata for EC2 instances in a Puppet-managed infrastructure. The module bridges the gap between AWS instance launch and Puppet configuration by handling bootstrapping tasks including AWS tooling setup, Puppet facts injection, APT repository configuration, and Puppet execution.
+This is a Terraform module that generates cloud-init userdata for EC2 instances in a Puppet-managed infrastructure.
+The module bridges the gap between AWS instance launch and Puppet configuration by handling bootstrapping tasks
+including AWS tooling setup, Puppet facts injection, APT repository configuration, and Puppet execution.
 
-**Key output**: A base64-encoded cloud-init configuration (userdata) that can be used in AWS launch templates or instance configurations.
+**Key output**: A base64-encoded cloud-init configuration (userdata) that can be used in AWS launch templates or
+instance configurations.
 
 ## Common Development Commands
 
@@ -107,7 +116,9 @@ Tests use `pytest-infrahouse` fixtures that create real AWS infrastructure:
 
 ### AWS Provider Version Testing
 
-**CRITICAL**: Tests must run against both AWS provider versions 5 and 6. This is enforced via `@pytest.mark.parametrize("aws_provider_version", ["~> 5.11", "~> 6.0"])`. Tests dynamically rewrite `terraform.tf` to switch provider versions.
+**CRITICAL**: Tests must run against both AWS provider versions 5 and 6. This is enforced via
+`@pytest.mark.parametrize("aws_provider_version", ["~> 5.11", "~> 6.0"])`. Tests dynamically rewrite `terraform.tf`
+to switch provider versions.
 
 ## Coding Standards
 
@@ -154,4 +165,5 @@ Use conventional commits format (enforced by `hooks/commit-msg`):
 
 ## Module Version
 
-The module version is defined in `locals.tf` as `local.module_version`. This should be tagged on a "main" resource in modules that use this module.
+The module version is defined in `locals.tf` as `local.module_version`. This should be tagged on a "main" resource
+in modules that use this module.

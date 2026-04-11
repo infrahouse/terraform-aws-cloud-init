@@ -80,8 +80,7 @@ def test_module(
 
     # Update provider version
     with open(f"{module_dir}/terraform.tf", "w") as fp:
-        fp.write(
-            f"""
+        fp.write(f"""
             terraform {{
                 required_version = "~> 1.0"
                 required_providers {{
@@ -95,18 +94,13 @@ def test_module(
                     }}                    
                   }}
                 }}
-            """
-        )
+            """)
 
     with open(osp.join(module_dir, "terraform.tfvars"), "w") as fp:
         value = f'"{puppet_manifest}"' if puppet_manifest else "null"
-        fp.write(
-            dedent(
-                f"""
+        fp.write(dedent(f"""
                 puppet_manifest = { value }
-                """
-            )
-        )
+                """))
 
     with terraform_apply(
         module_dir,
