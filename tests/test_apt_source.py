@@ -15,8 +15,7 @@ from tests.conftest import TERRAFORM_ROOT_DIR
 def write_terraform_tf(module_dir: str, aws_provider_version: str) -> None:
     """Write terraform.tf with the specified AWS provider version."""
     with open(f"{module_dir}/terraform.tf", "w") as fp:
-        fp.write(
-            f"""
+        fp.write(f"""
             terraform {{
                 required_version = "~> 1.0"
                 required_providers {{
@@ -30,8 +29,7 @@ def write_terraform_tf(module_dir: str, aws_provider_version: str) -> None:
                     }}
                   }}
                 }}
-            """
-        )
+            """)
 
 
 def parse_userdata(tf_output: dict[str, Any]) -> dict[str, Any]:
@@ -132,8 +130,7 @@ def test_extra_repos_key_types(
     key_hcl = "\n      ".join(key_hcl_parts)
 
     # Write main.tf with the test configuration
-    main_tf = dedent(
-        f"""\
+    main_tf = dedent(f"""\
         module "test" {{
           source      = "../../"
           environment = "dev"
@@ -145,8 +142,7 @@ def test_extra_repos_key_types(
             }}
           }}
         }}
-    """
-    )
+    """)
     with open(osp.join(module_dir, "main.tf"), "w") as fp:
         fp.write(main_tf)
 

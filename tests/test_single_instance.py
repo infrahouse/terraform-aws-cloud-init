@@ -47,8 +47,7 @@ def test_module(
 
     # Update provider version
     with open(f"{terraform_module_dir}/terraform.tf", "w") as fp:
-        fp.write(
-            f"""
+        fp.write(f"""
             terraform {{
                 required_version = "~> 1.0"
                 required_providers {{
@@ -62,27 +61,18 @@ def test_module(
                     }}                    
                   }}
                 }}
-            """
-        )
+            """)
 
     with open(osp.join(terraform_module_dir, "terraform.tfvars"), "w") as fp:
-        fp.write(
-            dedent(
-                f"""
+        fp.write(dedent(f"""
                     region     = "{aws_region}"
                     subnet_id  = "{subnet_private_id}"
                     ami_vendor = "{ami_vendor}"
-                    """
-            )
-        )
+                    """))
         if test_role_arn:
-            fp.write(
-                dedent(
-                    f"""
+            fp.write(dedent(f"""
                     role_arn        = "{test_role_arn}"
-                    """
-                )
-            )
+                    """))
 
     with terraform_apply(
         terraform_module_dir,
