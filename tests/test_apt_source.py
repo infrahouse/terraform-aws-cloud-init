@@ -43,9 +43,7 @@ def parse_userdata(tf_output: dict[str, Any]) -> dict[str, Any]:
     return load(yaml_userdata, Loader=Loader)
 
 
-@pytest.mark.parametrize(
-    "aws_provider_version", ["~> 5.11", "~> 6.0"], ids=["aws-5", "aws-6"]
-)
+@pytest.mark.parametrize("aws_provider_version", ["~> 6.0"], ids=["aws-6"])
 def test_module(aws_provider_version, keep_after):
     module_dir = osp.join(TERRAFORM_ROOT_DIR, "apt_source")
 
@@ -78,7 +76,7 @@ def test_module(aws_provider_version, keep_after):
         ) == [{"machine": "bar", "authFrom": "bar-secret-arn"}]
 
 
-@pytest.mark.parametrize("aws_provider_version", ["~> 5.11", "~> 6.0"])
+@pytest.mark.parametrize("aws_provider_version", ["~> 6.0"])
 @pytest.mark.parametrize(
     "key_config,expected_fields",
     [

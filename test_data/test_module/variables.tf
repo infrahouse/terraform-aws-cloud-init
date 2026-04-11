@@ -7,3 +7,8 @@ variable "mounts" {
 variable "puppet_manifest" {
   default = null
 }
+
+variable "lifecycle_hook_name" {
+  default = null
+  type    = string
+}

@@ -1,5 +1,6 @@
 locals {
-  external_facts_dir = "/etc/puppetlabs/facter/facts.d"
+  external_facts_dir    = "/etc/puppetlabs/facter/facts.d"
+  bootstrap_script_path = "/usr/local/bin/ih-bootstrap"
 }
 
 data "aws_region" "current" {}
@@ -12,9 +13,9 @@ locals {
   puppet_cmd = join(
     " ",
     concat(
+      ["ih-puppet"],
+      var.puppet_debug_logging ? ["--debug"] : [],
       [
-        "ih-puppet",
-        var.puppet_debug_logging ? "--debug" : "",
         "--environment", var.environment,
         "--environmentpath", var.puppet_environmentpath,
         "--root-directory", var.puppet_root_directory,
@@ -100,7 +101,7 @@ data "cloudinit_config" "config" {
                 [
                   {
                     content : local.bootstrap_script,
-                    path : "/usr/local/bin/ih-bootstrap",
+                    path : local.bootstrap_script_path,
                     permissions : "0755"
                   },
                   {
@@ -232,7 +233,7 @@ data "cloudinit_config" "config" {
                 # Single entry so cloud-init's runcmd module cannot fail-open
                 # between steps. The script runs under `set -euo pipefail`
                 # and is the sole owner of the /var/run/puppet-done marker.
-                "bash /usr/local/bin/ih-bootstrap"
+                "bash ${local.bootstrap_script_path}"
               ]
             }
           )

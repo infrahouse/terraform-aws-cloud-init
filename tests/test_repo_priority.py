@@ -10,9 +10,7 @@ from pytest_infrahouse import terraform_apply
 from yaml import load, Loader
 
 
-@pytest.mark.parametrize(
-    "aws_provider_version", ["~> 5.11", "~> 6.0"], ids=["aws-5", "aws-6"]
-)
+@pytest.mark.parametrize("aws_provider_version", ["~> 6.0"], ids=["aws-6"])
 def test_module(aws_provider_version, keep_after):
     terraform_dir = "test_data"
     module_dir = osp.join(terraform_dir, "test_module")

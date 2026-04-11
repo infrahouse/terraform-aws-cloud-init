@@ -203,6 +203,18 @@ variable "lifecycle_hook_name" {
   EOT
   type        = string
   default     = null
+
+  validation {
+    condition = var.lifecycle_hook_name == null ? true : (
+      can(regex("^[A-Za-z0-9_/-]+$", var.lifecycle_hook_name))
+      && length(var.lifecycle_hook_name) >= 1
+      && length(var.lifecycle_hook_name) <= 255
+    )
+    error_message = <<-EOT
+      lifecycle_hook_name must match AWS naming rules: 1-255 characters, containing only
+      letters, numbers, hyphens, underscores, and forward slashes.
+    EOT
+  }
 }
 
 variable "mounts" {

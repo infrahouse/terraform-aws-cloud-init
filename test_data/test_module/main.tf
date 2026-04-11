@@ -35,5 +35,6 @@ module "test" {
       public : file("${path.module}/ssh_keys/ssh_host_rsa_key.pub")
     }
   ]
-  puppet_manifest = var.puppet_manifest
+  puppet_manifest     = var.puppet_manifest
+  lifecycle_hook_name = var.lifecycle_hook_name
 }
