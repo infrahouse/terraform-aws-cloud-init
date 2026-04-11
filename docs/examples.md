@@ -102,6 +102,60 @@ module "database_userdata" {
 }
 ```
 
+## With an NFS Mount
+
+Mount an NFS share. The module auto-installs `nfs-common` because the
+`fs_vfstype` is `nfs`:
+
+```hcl
+module "shared_userdata" {
+  source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
+  version = "2.2.3"
+
+  environment = "production"
+  role        = "app_server"
+
+  mounts = [
+    ["fs-12345.efs.us-west-2.amazonaws.com:/", "/mnt/shared", "nfs4", "defaults,nofail", "0", "0"]
+  ]
+}
+```
+
+## With an ASG Lifecycle Hook
+
+For ASG-backed fleets, set `lifecycle_hook_name` so the bootstrap script
+signals the hook: `CONTINUE` on success, `ABANDON` via an `ERR` trap on
+any failure. This replaces the old pattern of appending
+`ih-aws autoscaling complete bootstrap` to `post_runcmd`, which could
+fire after a prior failure and wave a broken instance into the fleet:
+
+```hcl
+module "worker_userdata" {
+  source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
+  version = "2.2.3"
+
+  environment         = "production"
+  role                = "worker"
+  lifecycle_hook_name = "bootstrap"
+}
+
+resource "aws_autoscaling_group" "workers" {
+  # ...
+  initial_lifecycle_hook {
+    name                 = "bootstrap"
+    lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
+    default_result       = "ABANDON"
+    heartbeat_timeout    = 1800
+  }
+}
+```
+
+!!! warning "Do not also signal the hook from `post_runcmd`"
+    If you set `lifecycle_hook_name`, remove any manual
+    `ih-aws autoscaling complete ...` entries from `post_runcmd`. The
+    module owns both the success signal and the `ABANDON`-on-failure
+    trap; a manual signal in `post_runcmd` would conflict with the trap.
+
 ## With Private APT Repository
 
 Configure a private APT repository with authentication:

@@ -21,7 +21,14 @@ configurations.
 - **SSH Host Keys** - Pre-configure instance SSH keys for consistent host identification
 - **Custom Facts** - Inject arbitrary Puppet facts as JSON
 - **Execution Hooks** - Run custom commands before or after Puppet
-- **Volume Mounts** - Configure filesystem mounts before Puppet runs
+- **Volume Mounts** - Configure filesystem mounts before Puppet runs;
+  NFS/CIFS client packages are auto-installed based on `fs_vfstype`
+- **Fail-closed Bootstrap** - All bootstrap steps run under
+  `set -euo pipefail`; `/var/run/puppet-done` is a truthful completion
+  marker, written only on the success path
+- **ASG Lifecycle Integration** - Optional `lifecycle_hook_name` signals
+  `CONTINUE` on success and `ABANDON` on bootstrap failure, preventing
+  broken instances from joining the fleet
 - **Gzip Compression** - Optional userdata compression for large configurations
 
 ## Quick Start

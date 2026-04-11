@@ -65,7 +65,7 @@ with Diagram(
                 bootcmd = Storage("\n1. bootcmd\nAPT repos, GPG keys")
                 write_files = Storage("\n2. write_files\nAWS config, Puppet facts")
                 packages = Storage("\n3. packages\npuppet-code, toolkit")
-                runcmd = Storage("\n4. runcmd\nih-puppet apply")
+                runcmd = Storage("\n4. runcmd\nih-bootstrap (set -e)")
 
             puppet_done = Storage("\npuppet-done\nmarker")
 

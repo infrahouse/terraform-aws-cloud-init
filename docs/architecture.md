@@ -52,14 +52,29 @@ Installs required packages:
 
 ### 4. runcmd Phase
 
-Executes commands in order:
+cloud-init's `runcmd` contains a single entry that invokes the bootstrap
+script written to `/usr/local/bin/ih-bootstrap` by `write_files`. Running
+through a script instead of a flat list of `runcmd` entries means every
+step shares a single `bash` process with `set -euo pipefail`, so any
+failure aborts bootstrap instead of silently falling through to the next
+command. The script executes in order:
 
 1. **Mount volumes** - Runs `mount -a` if `var.mounts` is configured
 2. **Install Ruby gems** - Installs `json`, `aws-sdk-core`, `aws-sdk-secretsmanager`
 3. **Pre-runcmd** - User commands from `var.pre_runcmd`
 4. **ih-puppet apply** - Runs Puppet with configured options
 5. **Post-runcmd** - User commands from `var.post_runcmd`
-6. **Completion marker** - Creates `/var/run/puppet-done`
+6. **Completion marker** - Creates `/var/run/puppet-done` (success path only)
+7. **Lifecycle signal** - If `var.lifecycle_hook_name` is set, signals
+   `CONTINUE` to the ASG lifecycle hook
+
+!!! warning "Fail-closed contract"
+    Because the script runs under `set -e`, any non-zero exit from a step
+    aborts the remaining steps, `/var/run/puppet-done` is **not** created,
+    and (when configured) the ASG lifecycle hook is signaled with
+    `ABANDON` via an `ERR` trap. Steps in `pre_runcmd` / `post_runcmd`
+    that are legitimately best-effort must use `cmd || true` to opt out
+    of fail-closed behavior for that specific line.
 
 ## Puppet Facts
 

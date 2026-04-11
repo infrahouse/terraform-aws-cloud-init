@@ -156,6 +156,12 @@ pre_runcmd = [
 ]
 ```
 
+!!! warning "Fail-closed execution"
+    Commands run inside a bash script with `set -euo pipefail`. A non-zero
+    exit from any entry aborts bootstrap and prevents `/var/run/puppet-done`
+    from being created. If a command is legitimately best-effort, append
+    `|| true` to opt that specific line out of the fail-closed contract.
+
 ### `post_runcmd`
 
 Commands to run after Puppet applies the manifest.
@@ -169,6 +175,35 @@ post_runcmd = [
   "echo 'Bootstrap complete' >> /var/log/bootstrap.log"
 ]
 ```
+
+!!! warning "Fail-closed execution"
+    Same `set -e` semantics as `pre_runcmd`. Do not append a manual ASG
+    lifecycle completion signal here — use `lifecycle_hook_name` instead
+    so the signal is tied to the success path.
+
+### `lifecycle_hook_name`
+
+Name of an ASG lifecycle hook to signal from the bootstrap script.
+
+- **Type:** `string`
+- **Default:** `null`
+
+When set, the bootstrap script:
+
+- Installs an `ERR` trap that calls
+  `ih-aws autoscaling complete <hook> --result ABANDON` on any bootstrap
+  failure, so a broken instance is removed from the ASG instead of joining
+  the fleet.
+- Calls `ih-aws autoscaling complete <hook> --result CONTINUE` at the end
+  of the success path.
+
+```hcl
+lifecycle_hook_name = "bootstrap"
+```
+
+Leave `null` for standalone instances or ASGs without a bootstrap
+lifecycle hook. Even with `null`, the bootstrap script still runs under
+`set -euo pipefail` and only writes `/var/run/puppet-done` on success.
 
 ### `ssh_host_keys`
 
@@ -190,7 +225,8 @@ ssh_host_keys = [
 
 ### `mounts`
 
-Volumes to mount before Puppet runs.
+Volumes to mount before Puppet runs. Each entry follows the `cc_mounts`
+format: `[fs_spec, fs_file, fs_vfstype, fs_mntops, fs_freq, fs_passno]`.
 
 - **Type:** `list(list(string))`
 - **Default:** `[]`
@@ -200,6 +236,13 @@ mounts = [
   ["/dev/xvdf", "/data", "ext4", "defaults,nofail", "0", "2"]
 ]
 ```
+
+!!! tip "Remote filesystem client packages are auto-installed"
+    When an entry's `fs_vfstype` is `nfs`, `nfs4`, `cifs`, or `smbfs`, the
+    module automatically appends the matching client package
+    (`nfs-common` or `cifs-utils`) to the package list so `mount -a`
+    succeeds on a base Ubuntu image. For any other vfstype (EBS,
+    `tmpfs`, bind mounts, …) no extra package is added.
 
 ### `gzip_userdata`
 

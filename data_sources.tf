@@ -5,10 +5,45 @@ locals {
 data "aws_region" "current" {}
 
 locals {
-  pre_puppet_cmd = length(var.mounts) > 0 ? ["mount -a"] : []
   puppet_manifest = var.puppet_manifest == null ? (
     "${var.puppet_root_directory}/environments/${var.environment}/manifests/site.pp"
   ) : var.puppet_manifest
+
+  puppet_cmd = join(
+    " ",
+    concat(
+      [
+        "ih-puppet",
+        var.puppet_debug_logging ? "--debug" : "",
+        "--environment", var.environment,
+        "--environmentpath", var.puppet_environmentpath,
+        "--root-directory", var.puppet_root_directory,
+        "--hiera-config", var.puppet_hiera_config_path,
+        "--module-path", var.puppet_module_path,
+      ],
+      var.cancel_instance_refresh_on_error ? ["--cancel-instance-refresh-on-error"] : [],
+      [
+        "apply",
+        local.puppet_manifest
+      ]
+    )
+  )
+
+  # Bootstrap script rendered into /usr/local/bin/ih-bootstrap and invoked
+  # from runcmd as a single entry. Running through a script with set -euo
+  # pipefail (instead of cloud-init's fail-open runcmd list) means any
+  # failing step aborts bootstrap and /var/run/puppet-done is written only
+  # on the success path. See issue #84.
+  bootstrap_script = templatefile(
+    "${path.module}/files/ih-bootstrap.sh.tpl",
+    {
+      lifecycle_hook_name = var.lifecycle_hook_name == null ? "" : var.lifecycle_hook_name
+      mount_volumes       = length(var.mounts) > 0
+      pre_runcmd          = var.pre_runcmd
+      post_runcmd         = var.post_runcmd
+      puppet_cmd          = local.puppet_cmd
+    }
+  )
 }
 
 data "cloudinit_config" "config" {
@@ -63,6 +98,11 @@ data "cloudinit_config" "config" {
               ]
               write_files : concat(
                 [
+                  {
+                    content : local.bootstrap_script,
+                    path : "/usr/local/bin/ih-bootstrap",
+                    permissions : "0755"
+                  },
                   {
                     content : "export AWS_DEFAULT_REGION=${data.aws_region.current.name}",
                     path : "/etc/profile.d/aws.sh",
@@ -185,43 +225,15 @@ data "cloudinit_config" "config" {
                   "infrahouse-toolkit"
                 ],
                 contains(["noble", "oracular"], var.ubuntu_codename) ? ["ruby-rubygems", "ruby-dev"] : [],
+                local.mount_packages,
                 var.packages
               ),
-              runcmd : concat(
-                local.pre_puppet_cmd,
-                [
-                  "PATH=/opt/puppetlabs/puppet/bin:$PATH gem install json",
-                  "PATH=/opt/puppetlabs/puppet/bin:$PATH gem install aws-sdk-core",
-                  "PATH=/opt/puppetlabs/puppet/bin:$PATH gem install aws-sdk-secretsmanager",
-                ],
-                var.pre_runcmd,
-                [
-                  join(
-                    " ",
-                    concat(
-                      [
-                        "ih-puppet",
-                        var.puppet_debug_logging ? "--debug" : "",
-                        "--environment", var.environment,
-                        "--environmentpath", var.puppet_environmentpath,
-                        "--root-directory", var.puppet_root_directory,
-                        "--hiera-config", var.puppet_hiera_config_path,
-                        "--module-path", var.puppet_module_path,
-                      ],
-                      var.cancel_instance_refresh_on_error ? ["--cancel-instance-refresh-on-error"] : [],
-                      [
-                        "apply",
-                        local.puppet_manifest
-                      ]
-                    )
-                  )
-                ],
-                var.post_runcmd,
-                [
-                  # Marker file for integration tests to detect cloud-init completion
-                  "touch /var/run/puppet-done"
-                ]
-              )
+              runcmd : [
+                # Single entry so cloud-init's runcmd module cannot fail-open
+                # between steps. The script runs under `set -euo pipefail`
+                # and is the sole owner of the /var/run/puppet-done marker.
+                "bash /usr/local/bin/ih-bootstrap"
+              ]
             }
           )
         )

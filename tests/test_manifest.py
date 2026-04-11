@@ -122,14 +122,27 @@ def test_module(
         )
         ud_obj = load(yaml_userdata, Loader=Loader)
         found_ih_puppet_json = False
+        bootstrap_script = None
         for file_def in ud_obj["write_files"]:
             if file_def["path"] == "/etc/puppetlabs/facter/facts.d/ih-puppet.json":
                 found_ih_puppet_json = True
                 facts = json.loads(file_def["content"])
                 pprint(facts)
                 assert facts["ih-puppet"]["manifest"] == expected_fact
+            if file_def["path"] == "/usr/local/bin/ih-bootstrap":
+                bootstrap_script = file_def["content"]
         assert found_ih_puppet_json
-        # ih-puppet command is second-to-last (before the puppet-done marker)
-        assert ud_obj["runcmd"][-2].split(" ") == expected_runcmd
-        # Verify puppet-done marker is the last command
-        assert ud_obj["runcmd"][-1] == "touch /var/run/puppet-done"
+
+        # runcmd is a single entry that invokes the bootstrap script. The
+        # script wraps every step under set -euo pipefail so cloud-init
+        # cannot fail-open between steps.
+        assert ud_obj["runcmd"] == ["bash /usr/local/bin/ih-bootstrap"]
+
+        # The bootstrap script must be delivered via write_files with exec
+        # permissions and must contain the ih-puppet line plus the truthful
+        # /var/run/puppet-done marker on the success path.
+        assert bootstrap_script is not None
+        assert "set -euo pipefail" in bootstrap_script
+        expected_ih_puppet_line = " ".join(expected_runcmd)
+        assert expected_ih_puppet_line in bootstrap_script
+        assert "touch /var/run/puppet-done" in bootstrap_script
