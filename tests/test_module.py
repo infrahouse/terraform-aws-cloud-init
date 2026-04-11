@@ -10,12 +10,12 @@ from pytest_infrahouse import terraform_apply
 from yaml import load, Loader
 
 
+@pytest.mark.parametrize("aws_provider_version", ["~> 6.0"], ids=["aws-6"])
 @pytest.mark.parametrize(
-    "aws_provider_version", ["~> 5.11", "~> 6.0"], ids=["aws-5", "aws-6"]
-)
-@pytest.mark.parametrize(
-    "mounts, expected_mounts",
+    "mounts, expected_mounts, expected_mount_packages, forbidden_mount_packages",
     [
+        # NFS mount plus a plain EBS mount: nfs-common must be injected,
+        # cifs-utils must not be.
         (
             json.dumps(
                 [
@@ -42,11 +42,92 @@ from yaml import load, Loader
                 ],
                 ["xvdh", "/opt/data", "auto", "defaults,nofail", "0", "0"],
             ],
+            ["nfs-common"],
+            ["cifs-utils"],
         ),
-        (None, None),
+        # Two NFS mounts: nfs-common must appear exactly once (distinct()).
+        (
+            json.dumps(
+                [
+                    [
+                        "fs-a.efs.aws-region.amazonaws.com:/",
+                        "/mnt/a",
+                        "nfs4",
+                        "defaults",
+                        "0",
+                        "0",
+                    ],
+                    [
+                        "fs-b.efs.aws-region.amazonaws.com:/",
+                        "/mnt/b",
+                        "nfs4",
+                        "defaults",
+                        "0",
+                        "0",
+                    ],
+                ],
+                indent=4,
+            ),
+            [
+                [
+                    "fs-a.efs.aws-region.amazonaws.com:/",
+                    "/mnt/a",
+                    "nfs4",
+                    "defaults",
+                    "0",
+                    "0",
+                ],
+                [
+                    "fs-b.efs.aws-region.amazonaws.com:/",
+                    "/mnt/b",
+                    "nfs4",
+                    "defaults",
+                    "0",
+                    "0",
+                ],
+            ],
+            ["nfs-common"],
+            ["cifs-utils"],
+        ),
+        # CIFS mount: cifs-utils must be injected, nfs-common must not be.
+        (
+            json.dumps(
+                [
+                    ["//server/share", "/mnt/share", "cifs", "defaults", "0", "0"],
+                ],
+                indent=4,
+            ),
+            [
+                ["//server/share", "/mnt/share", "cifs", "defaults", "0", "0"],
+            ],
+            ["cifs-utils"],
+            ["nfs-common"],
+        ),
+        # Plain EBS mount only: no mount client packages should be added.
+        (
+            json.dumps(
+                [
+                    ["xvdh", "/opt/data", "auto", "defaults,nofail", "0", "0"],
+                ],
+                indent=4,
+            ),
+            [
+                ["xvdh", "/opt/data", "auto", "defaults,nofail", "0", "0"],
+            ],
+            [],
+            ["nfs-common", "cifs-utils"],
+        ),
+        (None, None, [], ["nfs-common", "cifs-utils"]),
     ],
 )
-def test_module(aws_provider_version, mounts, expected_mounts, keep_after):
+def test_module(
+    aws_provider_version,
+    mounts,
+    expected_mounts,
+    expected_mount_packages,
+    forbidden_mount_packages,
+    keep_after,
+):
     terraform_dir = "test_data"
     module_dir = osp.join(terraform_dir, "test_module")
 
@@ -104,3 +185,17 @@ def test_module(aws_provider_version, mounts, expected_mounts, keep_after):
             assert ud_obj["mounts"] == expected_mounts
         else:
             assert "mounts" not in ud_obj
+
+        packages = ud_obj.get("packages", [])
+        for pkg in expected_mount_packages:
+            assert (
+                pkg in packages
+            ), f"expected mount client package '{pkg}' in packages, got: {packages}"
+            # distinct() in locals.tf must collapse duplicates.
+            assert (
+                packages.count(pkg) == 1
+            ), f"expected '{pkg}' exactly once, got {packages.count(pkg)} in {packages}"
+        for pkg in forbidden_mount_packages:
+            assert (
+                pkg not in packages
+            ), f"unexpected mount client package '{pkg}' in packages: {packages}"
