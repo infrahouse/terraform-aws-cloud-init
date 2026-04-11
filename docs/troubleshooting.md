@@ -29,18 +29,45 @@ sudo cat /var/log/cloud-init.log
 
 **Symptoms:** `/var/run/puppet-done` doesn't exist.
 
+This marker is a **truthful** bootstrap-complete signal: it is written
+only if every step of `/usr/local/bin/ih-bootstrap` succeeded. A missing
+marker means something in the bootstrap pipeline failed and the script
+exited early under `set -e`.
+
 **Diagnosis:**
 
 ```bash
-# Check if Puppet ran
-sudo grep -i puppet /var/log/cloud-init-output.log
+# Inspect the rendered bootstrap script (exact commands and ordering)
+sudo cat /usr/local/bin/ih-bootstrap
 
-# Check for errors
+# Find which step failed — the last command printed before the trap
+# fired is the culprit
+sudo cat /var/log/cloud-init-output.log
 sudo grep -i error /var/log/cloud-init-output.log
 ```
 
-**Solution:** Check Puppet logs for errors. The marker is only created if all runcmd commands
-succeed.
+**Common causes:**
+
+1. **NFS/CIFS mount failure** - Missing client package on an older
+   instance, or a misconfigured server/credentials. The module now
+   auto-installs `nfs-common`/`cifs-utils` based on `fs_vfstype` in
+   `var.mounts`, but a stale AMI may need a reboot first.
+2. **`pre_runcmd` / `post_runcmd` entry returned non-zero** - Commands
+   run with `set -euo pipefail`, so any failure aborts bootstrap. If a
+   step is legitimately best-effort, append `|| true` to that specific
+   line.
+3. **`ih-puppet apply` failed** - Check Puppet logs for manifest
+   compilation or resource errors.
+4. **Missing `nfs-common` on pre-existing instances** - Instances that
+   bootstrapped before this module version shipped the auto-inject may
+   need the package added manually via `var.packages`.
+
+!!! note "ASG lifecycle hook signaling"
+    When `var.lifecycle_hook_name` is set, a failed bootstrap signals
+    `ABANDON` to the hook via an `ERR` trap, so the ASG tears the
+    instance down instead of letting it join the fleet. Grep
+    `/var/log/cloud-init-output.log` for `complete` to confirm whether
+    `CONTINUE` or `ABANDON` was sent.
 
 ## Validation Errors
 

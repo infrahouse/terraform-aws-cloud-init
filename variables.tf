@@ -187,6 +187,24 @@ variable "gzip_userdata" {
   default     = false
 }
 
+variable "lifecycle_hook_name" {
+  description = <<-EOT
+    Name of an ASG lifecycle hook to signal from the bootstrap script.
+
+    When set, the rendered bootstrap script will:
+    - Install an ERR trap that calls `ih-aws autoscaling complete <hook> --result ABANDON`
+      on any failure during bootstrap, so a broken instance does not join the fleet.
+    - Call `ih-aws autoscaling complete <hook> --result CONTINUE` at the end of the
+      success path, replacing any manual completion signal in post_runcmd.
+
+    Leave null for standalone instances, or for ASGs without a bootstrap lifecycle hook.
+    In that case the bootstrap script still runs under `set -euo pipefail` and still
+    writes /var/run/puppet-done only on success, but does not signal any hook.
+  EOT
+  type        = string
+  default     = null
+}
+
 variable "mounts" {
   description = <<-EOT
     List of volumes to be mounted in the instance. One list item is a list itself with values:

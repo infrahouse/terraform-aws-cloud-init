@@ -24,4 +24,19 @@ locals {
     }
     if repo.priority != null
   ]
+
+  # Client packages needed for remote filesystem mounts. Index 2 of each
+  # var.mounts entry is fs_vfstype (see cc_mounts documentation). We
+  # inject the client package so `mount -a` does not fail on a base image
+  # that does not ship nfs-common / cifs-utils.
+  mount_client_packages = {
+    nfs   = "nfs-common"
+    nfs4  = "nfs-common"
+    cifs  = "cifs-utils"
+    smbfs = "cifs-utils"
+  }
+
+  mount_packages = distinct(compact([
+    for m in var.mounts : lookup(local.mount_client_packages, length(m) >= 3 ? m[2] : "", "")
+  ]))
 }
