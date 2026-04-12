@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0] - 2026-04-12
+
+### Documentation
+
+- Implement Terraform Module Requirements ([#79](https://github.com/infrahouse/terraform-aws-cloud-init/issues/79))
+
+### Features
+
+- Fail-closed bootstrap via ih-bootstrap script
+
+### Miscellaneous Tasks
+
+- Refresh toolchain, dependencies, and docs preamble
+- Fix pre commit hooks
+
+### Testing
+
+- Address PR review follow-ups for ih-bootstrap
+
+### Ci
+
+- Add .checkov.yml so vuln-scanner workflow can run
+
 ## [2.2.3] - 2026-01-20
 
 ### Bug Fixes
