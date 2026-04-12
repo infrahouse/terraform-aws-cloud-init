@@ -77,7 +77,7 @@ The module prepares userdata:
 ```hcl
 module "jumphost_userdata" {
   source  = "infrahouse/cloud-init/aws"
-  version = "2.2.3"
+  version = "2.3.0"
 
   environment    = var.environment
   role           = "jumphost"

@@ -1,5 +1,5 @@
 locals {
-  module_version = "2.2.3"
+  module_version = "2.3.0"
 
   # Extract repos that have APT authentication configured (both machine and authFrom set)
   repo_pairs = [
