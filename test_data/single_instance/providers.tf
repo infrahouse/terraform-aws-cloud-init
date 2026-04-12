@@ -8,7 +8,7 @@ provider "aws" {
   }
   default_tags {
     tags = {
-      "created_by" : "infrahouse/terraform-aws-actions-runner" # GitHub repository that created a resource
+      "created_by" : "infrahouse/terraform-aws-cloud-init" # GitHub repository that created a resource
     }
   }
 }
