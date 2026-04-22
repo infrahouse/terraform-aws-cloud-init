@@ -43,7 +43,7 @@ See [Architecture](architecture.md) for a walk-through of each phase in the diag
 ```hcl
 module "webserver_userdata" {
   source  = "registry.infrahouse.com/infrahouse/cloud-init/aws"
-  version = "2.3.0"
+  version = "2.3.1"
 
   environment = "production"
   role        = "webserver"
