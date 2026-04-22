@@ -199,3 +199,23 @@ def test_module(
             assert (
                 pkg not in packages
             ), f"unexpected mount client package '{pkg}' in packages: {packages}"
+
+        # apt-daily / unattended-upgrades must be stopped and masked before any
+        # apt-touching step runs, so they cannot race for the dpkg lock
+        # (see issue #87).
+        bootcmd = ud_obj["bootcmd"]
+        assert bootcmd[0].startswith(
+            "systemctl stop apt-daily"
+        ), f"expected bootcmd to start with systemctl stop of apt-daily units, got: {bootcmd[0]}"
+        assert bootcmd[1].startswith(
+            "systemctl mask apt-daily"
+        ), f"expected bootcmd[1] to mask apt-daily units, got: {bootcmd[1]}"
+        for unit in (
+            "apt-daily.service",
+            "apt-daily.timer",
+            "apt-daily-upgrade.service",
+            "apt-daily-upgrade.timer",
+            "unattended-upgrades.service",
+        ):
+            assert unit in bootcmd[0], f"{unit} missing from stop command: {bootcmd[0]}"
+            assert unit in bootcmd[1], f"{unit} missing from mask command: {bootcmd[1]}"

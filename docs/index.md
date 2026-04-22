@@ -3,12 +3,16 @@
 A Terraform module that generates cloud-init userdata for EC2 instances in a
 Puppet-managed infrastructure.
 
+![Cloud-Init Bootstrap Flow](assets/architecture.png)
+
 ## Overview
 
 This module bridges the gap between AWS instance launch and Puppet configuration by handling
 essential bootstrapping tasks that must occur before Puppet can take control. It generates a
 complete cloud-init configuration that can be used in AWS launch templates or instance
 configurations.
+
+See [Architecture](architecture.md) for a walk-through of each phase in the diagram.
 
 ## Features
 
@@ -29,6 +33,9 @@ configurations.
 - **ASG Lifecycle Integration** - Optional `lifecycle_hook_name` signals
   `CONTINUE` on success and `ABANDON` on bootstrap failure, preventing
   broken instances from joining the fleet
+- **dpkg Lock Protection** - `apt-daily` timers and
+  `unattended-upgrades` are stopped and masked in `bootcmd`, so they
+  cannot race cloud-init or Puppet for the dpkg lock on first boot
 - **Gzip Compression** - Optional userdata compression for large configurations
 
 ## Quick Start
