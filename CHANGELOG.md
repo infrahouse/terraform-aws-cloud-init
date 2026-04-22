@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.1] - 2026-04-22
+
+### Bug Fixes
+
+- Mask apt-daily and unattended-upgrades in bootcmd ([#87](https://github.com/infrahouse/terraform-aws-cloud-init/issues/87))
+
+### Documentation
+
+- Remove duplicated README sections outside terraform-docs block
+
+### Testing
+
+- Find apt-auth bootcmd entry by suffix, not index
+
 ## [2.3.0] - 2026-04-12
 
 ### Documentation
