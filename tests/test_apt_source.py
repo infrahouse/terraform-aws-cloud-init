@@ -69,11 +69,18 @@ def test_module(aws_provider_version, keep_after):
         print(userdata)
         ud_obj = parse_userdata(tf_output)
         print(json.dumps(ud_obj, indent=4))
-        # Verify a string in this command
-        # "echo 'W3siYXV0aEZyb20iOiJiYXItc2VjcmV0LWFybiIsIm1hY2hpbmUiOiJiYXIifV0=' > /var/tmp/apt-auth.json.b64",
-        assert json.loads(
-            b64decode(ud_obj["bootcmd"][0].split()[1].strip("'")).decode()
-        ) == [{"machine": "bar", "authFrom": "bar-secret-arn"}]
+        # Find the apt-auth.json.b64 echo line (its position in bootcmd is not
+        # fixed — other bootcmd entries like the apt-daily mask run first).
+        # Expected shape:
+        # "echo 'W3siYXV0aEZyb20iOiJiYXItc2VjcmV0LWFybiIsIm1hY2hpbmUiOiJiYXIifV0=' > /var/tmp/apt-auth.json.b64"
+        apt_auth_cmd = next(
+            cmd
+            for cmd in ud_obj["bootcmd"]
+            if isinstance(cmd, str) and cmd.endswith("/var/tmp/apt-auth.json.b64")
+        )
+        assert json.loads(b64decode(apt_auth_cmd.split()[1].strip("'")).decode()) == [
+            {"machine": "bar", "authFrom": "bar-secret-arn"}
+        ]
 
 
 @pytest.mark.parametrize("aws_provider_version", ["~> 6.0"])
