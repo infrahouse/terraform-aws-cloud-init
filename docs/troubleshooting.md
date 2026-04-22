@@ -162,6 +162,33 @@ sudo cat /var/log/cloud-init-output.log | grep -i secret
 2. **IAM permissions** - Instance role needs `secretsmanager:GetSecretValue`
 3. **Secret format** - Must be JSON: `{"apt": "username:password"}`
 
+### dpkg lock held / instances ABANDONed ~2 min after launch
+
+**Symptoms:** On fresh noble instances, cloud-init's `apt-get install`
+fails with `Could not get lock /var/lib/dpkg/lock-frontend`, or an ASG
+with `lifecycle_hook_name` set tears the instance down ~2 minutes after
+launch with no useful log artifacts (EBS volume dies with the instance
+before the cloudwatch agent starts).
+
+**Cause:** `unattended-upgrades` and the `apt-daily*` systemd timers run
+on first boot and compete with cloud-init's package install for the
+dpkg/apt lock. Fixed in this module: since the fix for
+[issue #87](https://github.com/infrahouse/terraform-aws-cloud-init/issues/87),
+`bootcmd` stops and masks these units before any other apt step runs.
+
+**Verification:**
+
+```bash
+systemctl is-enabled \
+  apt-daily.service apt-daily.timer \
+  apt-daily-upgrade.service apt-daily-upgrade.timer \
+  unattended-upgrades.service
+# Expected: all five report "masked"
+```
+
+If any report `enabled`, the module version predates the fix — upgrade
+to a version that includes it.
+
 ### Package installation failed
 
 **Symptoms:** Packages from `var.packages` not installed.

@@ -18,6 +18,16 @@ during instance first boot.
 
 Runs early in boot, before package installation. This phase:
 
+- **Stops and masks `apt-daily` / `unattended-upgrades`** - These systemd
+  units race cloud-init for the dpkg lock and have been observed to
+  ABANDON instances on noble when `lifecycle_hook_name` is set (see
+  [issue #87](https://github.com/infrahouse/terraform-aws-cloud-init/issues/87)).
+  Puppet owns package state on InfraHouse-managed instances, so
+  unattended-upgrades is redundant; security patches land via AMI
+  rebuilds + ASG cycling, not ad-hoc restarts on live nodes. `mask`
+  (not `disable`) is used because these units are masked by default on
+  noble and `disable` is a no-op.
+
 - **Sets up APT authentication** - If `authFrom` is configured, runs a Python script
   (`generate_apt_auth.py`) that fetches credentials from AWS Secrets Manager using `boto3`.
 

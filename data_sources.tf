@@ -1,6 +1,16 @@
 locals {
   external_facts_dir    = "/etc/puppetlabs/facter/facts.d"
   bootstrap_script_path = "/usr/local/bin/ih-bootstrap"
+
+  # systemd units that race with cloud-init / Puppet for the dpkg lock on
+  # fresh Ubuntu instances. Stopped and masked in bootcmd; see issue #87.
+  apt_daily_units = [
+    "apt-daily.service",
+    "apt-daily.timer",
+    "apt-daily-upgrade.service",
+    "apt-daily-upgrade.timer",
+    "unattended-upgrades.service",
+  ]
 }
 
 data "aws_region" "current" {}
@@ -78,6 +88,22 @@ data "cloudinit_config" "config" {
             length(var.mounts) > 0 ? { mounts : var.mounts } : {},
             {
               bootcmd : [
+                # Stop and mask apt-daily / unattended-upgrades before anything else
+                # touches apt. These timers race with cloud-init's package install and
+                # any apt-get run from bootcmd / pre_runcmd / Puppet for the dpkg lock;
+                # lost races on noble have been observed to ABANDON instances via the
+                # lifecycle_hook_name ERR trap (see issue #87).
+                #
+                # Puppet owns package state on InfraHouse-managed instances, so we don't
+                # need unattended-upgrades; security patches land via AMI rebuilds +
+                # ASG cycling, not ad-hoc 1 AM service restarts on live nodes.
+                #
+                # `mask` (not `disable`) is required: on noble these units are masked by
+                # default and `disable` is a no-op, so we must mask to keep them from
+                # coming back after a reboot on long-lived instances.
+                "systemctl stop ${join(" ", local.apt_daily_units)} 2>/dev/null || true",
+                "systemctl mask ${join(" ", local.apt_daily_units)}",
+
                 # Create auth inputs for APT repos
                 "echo '${base64encode(local.repo_pairs_json)}' > /var/tmp/apt-auth.json.b64",
                 "base64 -d /var/tmp/apt-auth.json.b64 > /var/tmp/apt-auth.json",
