@@ -129,9 +129,10 @@ extra_repos = {
 
 ## APT Repository Issues
 
-### GPG key validation failed
+### GPG key installation failed
 
-**Symptoms:** Instance fails during bootcmd with GPG fingerprint mismatch.
+**Symptoms:** Instance fails during bootcmd because the signing-key bundle could not be
+fetched, or `apt update` reports `NO_PUBKEY` / an unsigned repository.
 
 **Diagnosis:**
 
@@ -139,8 +140,10 @@ extra_repos = {
 sudo cat /var/log/cloud-init-output.log | grep -i gpg
 ```
 
-**Solution:** This indicates the GPG key has been rotated or is incorrect. Update to the latest
-module version which includes current key fingerprints.
+**Solution:** bootcmd fetches the key bundle over HTTPS from
+`release-<codename>.infrahouse.com`. A failure here is almost always a network/DNS problem
+reaching that host, or the repository not publishing a bundle for the codename. Confirm the
+instance can reach the repository URL and retry.
 
 ### Private repository authentication failed
 

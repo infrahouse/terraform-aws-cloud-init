@@ -5,7 +5,7 @@ module "user-data" {
   extra_repos = {
     "fake" : {
       source : "deb https://us.archive.ubuntu.com/ubuntu $RELEASE main"
-      key : file("${path.module}/files/DEB-GPG-KEY-infrahouse-noble")
+      key : file("${path.module}/files/DEB-GPG-KEY-fake")
       machine : "us.archive.ubuntu.com"
       authFrom : module.debian-auth.secret_arn
     }
