@@ -17,7 +17,7 @@ handling essential bootstrapping tasks that must occur before Puppet can take co
 
 - **Puppet Integration** - Injects environment and role facts for Puppet-based configuration management
 - **AWS Region Configuration** - Automatically configures AWS CLI with the instance's region
-- **APT Repository Management** - Sets up InfraHouse APT repository with GPG key validation
+- **APT Repository Management** - Sets up InfraHouse APT repository with signing-key installation
 - **Custom APT Repositories** - Support for additional repositories with optional authentication via AWS Secrets Manager
 - **Package Installation** - Installs `puppet-code`, `infrahouse-toolkit`, and custom packages
 - **SSH Host Keys** - Pre-configure instance SSH keys for consistent host identification
@@ -127,17 +127,15 @@ This module follows a **LTS-only support policy** for Ubuntu versions.
 
 ### GPG Key Lifecycle
 
-This module validates GPG fingerprints for InfraHouse APT repositories during bootstrap.
+This module fetches the InfraHouse APT signing-key bundle over HTTPS during bootstrap and
+installs it into the apt keyring. Trust is anchored on TLS to the repository host; the module
+does not pin key fingerprints, so key rotation is handled entirely server-side.
 
-**Current key expiration:**
-- noble (24.04): Key expires **July 20, 2026**
-- ⚠️ **Action Required:** noble GPG key will be rotated to 5-year lifecycle before expiration
-
-**Future key rotation policy:**
-- GPG keys will have **5-year expiration** (matching Ubuntu LTS standard support)
-- New keys generated when new LTS releases
-- No mid-lifecycle rotation = no production incident risk
-- Users can adopt new LTS versions at their own pace
+**Zero-downtime rotation:**
+- The repository publishes a multi-key bundle; during a rotation overlap it carries both the
+  outgoing and incoming keys, so new instances trust a `Release` signed by either.
+- `gpg --dearmor` handles the concatenated bundle, so new instances pick up rotated keys on
+  their next first boot with **no module upgrade required**.
 
 See [infrahouse/aws-control-493370826424#355](https://github.com/infrahouse/aws-control-493370826424/issues/355) for current key rotation status.
 
@@ -155,8 +153,8 @@ See [infrahouse/aws-control-493370826424#355](https://github.com/infrahouse/aws-
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.40.0 |
-| <a name="provider_cloudinit"></a> [cloudinit](#provider\_cloudinit) | 2.3.7 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.11, < 7.0 |
+| <a name="provider_cloudinit"></a> [cloudinit](#provider\_cloudinit) | ~> 2.3 |
 
 ## Modules
 

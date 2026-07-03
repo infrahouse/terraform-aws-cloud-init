@@ -210,16 +210,10 @@ data "cloudinit_config" "config" {
                 sources : merge(
                   {
                     # The InfraHouse APT repository is now installed via bootcmd.sh script
-                    # (see lines 54-58 above). The script fetches the GPG key from the
-                    # repository URL, verifies its fingerprint, and creates the apt
-                    # sources list at /etc/apt/sources.list.d/50-infrahouse.list.
+                    # (see lines 54-58 above). The script fetches the GPG key bundle over
+                    # HTTPS from the repository URL and creates the apt sources list at
+                    # /etc/apt/sources.list.d/50-infrahouse.list.
                     # This approach avoids embedding the full GPG key in userdata.
-                    #
-                    # Previously it was installed here inline (retained for illustration):
-                    # infrahouse : {
-                    #   source : "deb [signed-by=$KEY_FILE] https://release-${var.ubuntu_codename}.infrahouse.com/ $RELEASE main"
-                    #   key : file("${path.module}/files/DEB-GPG-KEY-infrahouse-${var.ubuntu_codename}")
-                    # }
                   },
                   {
                     for repo in keys(var.extra_repos) : repo => merge(

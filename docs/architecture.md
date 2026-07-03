@@ -151,18 +151,22 @@ machine apt.example.com login deploy password s3cr3t
     If your secret contains multiple key-value pairs, only the first one will be used
     for authentication.
 
-## GPG Key Validation
+## GPG Key Installation
 
-The InfraHouse APT repository installation validates GPG key fingerprints:
+The InfraHouse APT repository installation fetches the signing-key bundle over HTTPS
+from the repository host and installs it into the apt keyring:
 
 ```bash
-# bootcmd.sh validates the key fingerprint before trusting it
-EXPECTED_FINGERPRINT="..."
-ACTUAL_FINGERPRINT=$(gpg --show-keys --with-fingerprint key.gpg | grep -o '[A-F0-9 ]\{50\}')
-if [ "$ACTUAL_FINGERPRINT" != "$EXPECTED_FINGERPRINT" ]; then
-    exit 1
-fi
+# bootcmd.sh fetches the (possibly multi-key) bundle and dearmors it into the keyring.
+# Trust is anchored on TLS to release-<codename>.infrahouse.com. gpg --dearmor handles
+# concatenated keys, so during a signing-key rotation the bundle can carry both the
+# outgoing and incoming keys and both are trusted on new instances.
+curl --fail ... "https://release-${UBUNTU_CODENAME}.infrahouse.com/DEB-GPG-KEY-..." \
+    | gpg --dearmor > /etc/apt/keyrings/infrahouse.gpg
 ```
+
+Key rotation is handled entirely server-side (publish a new bundle); clients pick up
+new keys on their next first boot with no module change required.
 
 ## Using the InfraHouse AMI
 

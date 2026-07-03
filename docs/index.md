@@ -18,7 +18,7 @@ See [Architecture](architecture.md) for a walk-through of each phase in the diag
 
 - **Puppet Integration** - Injects environment and role facts for Puppet-based configuration
 - **AWS Region Configuration** - Automatically configures AWS CLI with the instance's region
-- **APT Repository Management** - Sets up InfraHouse APT repository with GPG key validation
+- **APT Repository Management** - Sets up InfraHouse APT repository with signing-key installation
 - **Custom APT Repositories** - Support for additional repositories with optional authentication
   via AWS Secrets Manager
 - **Package Installation** - Installs `puppet-code`, `infrahouse-toolkit`, and custom packages
