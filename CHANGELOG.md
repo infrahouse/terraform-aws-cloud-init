@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.0] - 2026-07-03
+
+### Features
+
+- Support server-side GPG key rotation; drop client-side fingerprint pin
+
 ## [2.3.1] - 2026-04-22
 
 ### Bug Fixes
