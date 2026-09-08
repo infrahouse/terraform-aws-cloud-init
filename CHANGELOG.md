@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.1] - 2026-09-08
+
+### Bug Fixes
+
+- Pin gem versions installed by ih-bootstrap
+
+### Testing
+
+- Name the single_instance test EC2 instance
+
 ## [2.4.0] - 2026-07-03
 
 ### Features
