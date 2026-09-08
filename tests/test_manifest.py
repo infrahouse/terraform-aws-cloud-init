@@ -139,6 +139,8 @@ def test_module(
         expected_ih_puppet_line = " ".join(expected_runcmd)
         assert expected_ih_puppet_line in bootstrap_script
         assert "touch /var/run/puppet-done" in bootstrap_script
+        # json 3.x breaks Puppet 8's vendored multi_json, so the gem stays pinned below it.
+        assert "gem install json -v '< 3'" in bootstrap_script
 
 
 @pytest.mark.parametrize("aws_provider_version", ["~> 6.0"])

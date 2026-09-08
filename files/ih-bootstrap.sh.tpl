@@ -24,7 +24,9 @@ trap _ih_signal_abandon ERR
 mount -a
 %{ endif ~}
 
-PATH=/opt/puppetlabs/puppet/bin:$PATH gem install json
+# json 3.0 dropped the second positional argument from JSON.parse, which breaks the multi_json
+# adapter vendored in Puppet 8. `puppet module install` then dies and the ERR trap ABANDONs the host.
+PATH=/opt/puppetlabs/puppet/bin:$PATH gem install json -v '< 3'
 PATH=/opt/puppetlabs/puppet/bin:$PATH gem install aws-sdk-core
 PATH=/opt/puppetlabs/puppet/bin:$PATH gem install aws-sdk-secretsmanager
 
