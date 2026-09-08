@@ -24,9 +24,23 @@ trap _ih_signal_abandon ERR
 mount -a
 %{ endif ~}
 
-PATH=/opt/puppetlabs/puppet/bin:$PATH gem install json
-PATH=/opt/puppetlabs/puppet/bin:$PATH gem install aws-sdk-core
-PATH=/opt/puppetlabs/puppet/bin:$PATH gem install aws-sdk-secretsmanager
+# Every gem is installed with a major-version constraint. An unconstrained
+# `gem install` resolves to whatever is newest on rubygems.org at boot time, so a
+# third-party release can break every instance this module launches without a
+# single change here.
+#
+# json 3.0 did exactly that: it dropped the second positional argument from
+# JSON.parse, which breaks the multi_json adapter vendored in Puppet 8. The
+# `puppet module --render-as json ... install` that ih-puppet runs to fetch
+# profile dependencies then dies with ArgumentError, bootstrap aborts, and with
+# lifecycle_hook_name set the ERR trap ABANDONs the instance -- whose replacement
+# installs the same gem. json 3.0.1 shipped a day later and still raises, so the
+# constraint excludes the whole 3.x line rather than a known-bad version.
+#
+# See issue #93.
+PATH=/opt/puppetlabs/puppet/bin:$PATH gem install json --version '~> 2.6'
+PATH=/opt/puppetlabs/puppet/bin:$PATH gem install aws-sdk-core --version '~> 3.254'
+PATH=/opt/puppetlabs/puppet/bin:$PATH gem install aws-sdk-secretsmanager --version '~> 1.134'
 
 %{ for cmd in pre_runcmd ~}
 ${cmd}
