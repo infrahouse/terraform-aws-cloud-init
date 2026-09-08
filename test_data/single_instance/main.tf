@@ -9,4 +9,8 @@ resource "aws_instance" "cloud-init" {
   user_data_base64            = module.user-data.userdata
   user_data_replace_on_change = true
 
+  tags = {
+    Name : "Single-Instance"
+  }
+
 }
